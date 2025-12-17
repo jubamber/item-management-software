@@ -9,28 +9,28 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AddItem from './pages/AddItem';
 import AdminPanel from './pages/AdminPanel';
-import './App.css'; // 假设你保留了 CSS 文件
+import './App.css'; 
 
 const Navbar: React.FC = () => {
     const { user, logout } = useContext(AuthContext);
     return (
-        <nav style={{ padding: '10px', background: '#f0f0f0', marginBottom: '20px' }}>
-            <Link to="/" style={{ marginRight: '10px', fontWeight: 'bold' }}>物品复活系统</Link>
-            <Link to="/" style={{ marginRight: '10px' }}>浏览物品</Link>
-            
+        <nav className="navbar">
+            <Link to="/" className="navbar-logo">物品复活系统</Link>
+            <Link to="/" className="navbar-link">浏览物品</Link>
+
             {user ? (
                 <>
-                    <Link to="/add-item" style={{ marginRight: '10px' }}>发布物品</Link>
-                    {user.role === 'admin' && <Link to="/admin" style={{ marginRight: '10px' }}>管理员后台</Link>}
-                    <span style={{ marginLeft: 'auto', float: 'right' }}>
-                        欢迎, <strong>{user.username}</strong> | 
-                        <button onClick={logout} style={{ marginLeft: '5px' }}>退出</button>
-                    </span>
+                    <Link to="/add-item" className="navbar-link">发布物品</Link>
+                    {user.role === 'admin' && <Link to="/admin" className="navbar-link">管理员后台</Link>}
+                    <div className="navbar-user">
+                        欢迎, <strong>{user.username}</strong>
+                        <button onClick={logout} className="navbar-btn">退出</button>
+                    </div>
                 </>
             ) : (
-                <div style={{ float: 'right' }}>
-                    <Link to="/login" style={{ marginRight: '10px' }}>登录</Link>
-                    <Link to="/register">注册</Link>
+                <div className="navbar-auth">
+                    <Link to="/login" className="navbar-link">登录</Link>
+                    <Link to="/register" className="navbar-link">注册</Link>
                 </div>
             )}
         </nav>

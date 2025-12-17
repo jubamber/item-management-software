@@ -1,3 +1,6 @@
+/* src/index.css */
+/* 全局基础样式（字体、body、a、html、根变量等） */
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -24,12 +27,7 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-
-  justify-content: center; /* 水平居中 */
+  overflow-y: scroll; /* 始终显示垂直滚动条 */
 }
 
 h1 {
@@ -57,11 +55,10 @@ button:focus-visible {
 }
 
 #root {
-  height: 100%;      /* 撑满 body 高度 */
-  width: 80%;       /* 撑满 body 宽度 */
+  min-height: 100vh;  /* 至少撑满整个视口高度 */
+  width: 100%;       /* 撑满 body 宽度 */
   display: flex;     /* 可选，如果你想在 root 内做 flex 布局 */
   flex-direction: column; /* 可选，根据需要布局 */
-  justify-content: center; /* root 内部内容水平居中 */
 }
 
 @media (prefers-color-scheme: light) {

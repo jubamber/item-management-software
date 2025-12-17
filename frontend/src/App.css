@@ -1,3 +1,6 @@
+/* src/App.css */
+/* 应用整体布局或组件通用样式 */
+
 /* =========================================
    1. 全局变量与重置 (Variables & Reset)
    ========================================= */
@@ -220,4 +223,73 @@ form button[type="submit"]:hover {
   border-radius: var(--radius-sm);
   margin-bottom: 15px;
   font-size: 14px;
+}
+
+/* Navbar 主容器 */
+.navbar {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 0 20px;
+}
+
+/* Logo */
+.navbar-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+/* 普通导航链接 */
+.navbar-link {
+    font-size: 15px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    margin-right: 10px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.navbar-link:hover {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+}
+
+/* 用户信息容器 */
+.navbar-user {
+    margin-left: auto; /* 推到右边 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 登录注册容器 */
+.navbar-auth {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+/* 退出按钮 */
+.navbar-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    font-size: 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.navbar-btn:hover {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    background-color: #fef2f2;
 }

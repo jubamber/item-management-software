@@ -1,11 +1,18 @@
 # app.py
-import os
+
 import json
 from datetime import datetime
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
+from flask import Flask, request, jsonify 
+from flask_sqlalchemy import SQLAlchemy # ORM
+from flask_cors import CORS # 处理跨域请求
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+    get_jwt
+) # jwt认证
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -13,7 +20,7 @@ app = Flask(__name__)
 # 配置
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production'
+app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production' # 实际使用时需要加密，这里就不修改了
 
 db = SQLAlchemy(app)
 CORS(app)
@@ -35,6 +42,7 @@ class ItemType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     # attributes 存储 JSON 字符串: [{"name": "保质期", "type": "date"}, {"name": "作者", "type": "text"}]
+    # type类型可以自定义，不做限制，只要能处理
     attributes = db.Column(db.Text, nullable=False, default='[]')
 
 class Item(db.Model):
@@ -138,7 +146,6 @@ def get_types():
 @app.route('/types', methods=['POST'])
 @jwt_required()
 def add_type():
-    # identity = get_jwt_identity()
     identity = get_jwt()  # 获取额外载荷
     if identity['role'] != 'admin':
         return jsonify({"msg": "Admin only"}), 403
@@ -156,8 +163,6 @@ def add_type():
 @app.route('/items', methods=['POST'])
 @jwt_required()
 def add_item():
-    # identity = get_jwt_identity()
-    # user = User.query.get(identity['id'])
     current_user_id = get_jwt_identity() # 现在这只是一个字符串 ID "1"
     user = User.query.get(int(current_user_id)) # 转回整数查询数据库
     data = request.json
@@ -217,7 +222,6 @@ def get_items():
 @app.route('/items/<int:item_id>', methods=['DELETE'])
 @jwt_required()
 def delete_item(item_id):
-    # identity = get_jwt_identity()
     current_user_id = int(get_jwt_identity()) # 获取 ID
     identity = get_jwt()
     item = Item.query.get_or_404(item_id)
@@ -234,7 +238,6 @@ def delete_item(item_id):
 @app.route('/admin/users', methods=['GET'])
 @jwt_required()
 def get_users():
-    # identity = get_jwt_identity()
     identity = get_jwt()
     if identity['role'] != 'admin':
         return jsonify({"msg": "Admin only"}), 403
