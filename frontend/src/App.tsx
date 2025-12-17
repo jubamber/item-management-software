@@ -9,7 +9,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AddItem from './pages/AddItem';
 import AdminPanel from './pages/AdminPanel';
-import Loading from './components/loading';
+import Loading from './components/Loading';
 import './App.css'; 
 
 const Navbar: React.FC = () => {
