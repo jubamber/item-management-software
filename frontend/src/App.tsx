@@ -10,10 +10,30 @@ import Dashboard from './pages/Dashboard';
 import AddItem from './pages/AddItem';
 import AdminPanel from './pages/AdminPanel';
 import Loading from './components/Loading';
+import api from './api';
 import './App.css'; 
 
 const Navbar: React.FC = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, setUser } = useContext(AuthContext);
+
+    const handleDeleteAccount = async () => {
+        if (!user) return;
+        if (!window.confirm(`确定要注销当前账户并清空所有物品吗？`)) return;
+
+        try {
+            await api.delete(`/users/${user.id}`);
+            alert("账户已注销");
+            setUser(null);
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('username');
+            window.location.href = '/'; // 刷新到首页
+        } catch (error) {
+            console.error(error);
+            alert("注销失败");
+        }
+    };
+
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">物品复活系统</Link>
@@ -25,7 +45,10 @@ const Navbar: React.FC = () => {
                     {user.role === 'admin' && <Link to="/admin" className="navbar-link">管理员后台</Link>}
                     <div className="navbar-user">
                         欢迎, <strong>{user.username}</strong>
-                        <button onClick={logout} className="navbar-btn">退出</button>
+                        <button onClick={logout} className="navbar-btn1">退出</button>
+                        {
+                            user.username !== 'admin' && <button onClick={handleDeleteAccount} className="navbar-btn2">注销</button>
+                        }
                     </div>
                 </>
             ) : (

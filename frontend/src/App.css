@@ -277,7 +277,7 @@ form button[type="submit"]:hover {
 }
 
 /* 退出按钮 */
-.navbar-btn {
+.navbar-btn1 {
     background-color: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
@@ -288,8 +288,26 @@ form button[type="submit"]:hover {
     transition: var(--transition);
 }
 
-.navbar-btn:hover {
+/* 注销按钮 */
+.navbar-btn2 {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    font-size: 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.navbar-btn1:hover {
     border-color: var(--danger-color);
     color: var(--danger-color);
     background-color: #fef2f2;
+}
+
+.navbar-btn2:hover {
+    border-color: #6b7280;
+    color: #6b7280;
+    background-color: #eaeae7;
 }

@@ -145,7 +145,12 @@ def login():
         identity=str(user.id), 
         additional_claims={"role": user.role, "username": user.username}
     )
-    return jsonify({"token": token, "role": user.role, "username": user.username}), 200
+    return jsonify({
+        "token": token,
+        "role": user.role,
+        "username": user.username,
+        "id": user.id      
+    }), 200
 
 # 2. 物品类型模块 (公共读取，管理员管理)
 @app.route('/types', methods=['GET'])
@@ -301,6 +306,26 @@ def delete_user(user_id):
     if str(user.id) == get_jwt_identity():
         return jsonify({"msg": "Cannot delete yourself"}), 400
 
+    try:
+        # 手动级联删除：先删除该用户发布的所有物品
+        Item.query.filter_by(owner_id=user.id).delete()
+        
+        # 删除用户
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"msg": "User and their items deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Delete failed: {str(e)}"}), 500
+    
+# 注销用户接口
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+@jwt_required()
+def delete_self(user_id):
+    current_user_id = int(get_jwt_identity())
+    if user_id != current_user_id:
+        return jsonify({"msg": "Permission denied"}), 403
+    user = User.query.get_or_404(user_id)
     try:
         # 手动级联删除：先删除该用户发布的所有物品
         Item.query.filter_by(owner_id=user.id).delete()

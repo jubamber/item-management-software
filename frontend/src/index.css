@@ -16,6 +16,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  scrollbar-gutter: stable;
+  background-color: #f9fafb;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -27,7 +32,6 @@ a:hover {
 
 body {
   margin: 0;
-  overflow-y: scroll; /* 始终显示垂直滚动条 */
 }
 
 h1 {

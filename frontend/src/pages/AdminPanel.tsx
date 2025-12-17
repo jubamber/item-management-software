@@ -1,9 +1,10 @@
 // src/pages/AdminPanel.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import api from '../api';
 // 注意：你需要确保 User 类型定义里包含了 phone 和 address，如果之前没定义，可以在 types.ts 里补上，
 // 或者直接在这里扩展接口，如下所示：
+import { AuthContext } from '../AuthContext';
 import { type User as BaseUser, type AttributeDefinition } from '../types';
 import Loading from '../components/Loading';
 
@@ -18,6 +19,8 @@ interface NewTypeState {
 }
 
 const AdminPanel: React.FC = () => {
+    const { user } = useContext(AuthContext); // 获取当前登录用户信息
+
     const [pendingUsers, setPendingUsers] = useState<User[]>([]);
     const [approvedUsers, setApprovedUsers] = useState<User[]>([]); // 已审核用户列表
     const [searchTerm, setSearchTerm] = useState(''); // 搜索关键词
@@ -221,16 +224,15 @@ const AdminPanel: React.FC = () => {
                                     <td>{u.phone || '-'}</td>
                                     <td>{u.address || '-'}</td>
                                     <td>
-                                        {/* 删除按钮仅针对非admin */}
-                                        {u.username !== 'admin' && (
+                                        {/* 只有当: 不是超级admin 且 不是当前登录用户自己 时，才显示删除按钮 */}
+                                        {u.username !== 'admin' && u.username !== user?.username ? (
                                             <button 
                                                 onClick={() => handleDeleteUser(u.id, u.username)}
                                                 style={deleteBtn}
                                             >
                                                 删除
                                             </button>
-                                        )}
-                                        {u.username === 'admin' && (
+                                        ) : (
                                             <div>-</div>
                                         )}
                                     </td>
@@ -243,7 +245,8 @@ const AdminPanel: React.FC = () => {
                                                 提升为管理员
                                             </button>
                                         )}
-                                        {u.role === 'admin' && u.username !== 'admin' && (
+                                        {/* 降级逻辑: 只有当是admin 且 不是超级admin且 不是当前登录用户自己*/}
+                                        {u.role === 'admin' && u.username !== 'admin' && u.username !== user?.username && (
                                             <button 
                                                 onClick={() => handleDemote(u.id, u.username)}
                                                 style={demoteBtn}
@@ -251,7 +254,9 @@ const AdminPanel: React.FC = () => {
                                                 降为普通用户
                                             </button>
                                         )}
-                                        {u.username === 'admin' && (
+
+                                        {/* 如果是超级admin或者自己，显示占位符 */}
+                                        {(u.username === 'admin' || u.username === user?.username) && u.role === 'admin' && (
                                             <div>-</div>
                                         )}
                                     </td>
@@ -276,17 +281,6 @@ const AdminPanel: React.FC = () => {
                     *注意：当前为演示模式，新类型将自动包含"品牌"和"新旧程度"两个属性。
                 </p>
             </div>
-            {/* <div style={partition}>
-                <h3>添加物品类型</h3>
-                {username !== 'admin' && (
-                    <button 
-                        onClick={() => handleDeleteUser(u.id, u.username)}
-                        style={deleteBtn}
-                    >
-                        删除
-                    </button>
-                )}
-            </div> */}
         </div>
     );
 };

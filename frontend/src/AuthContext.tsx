@@ -8,12 +8,14 @@ interface AuthContextType {
     user: Partial<User> | null;
     login: (data: LoginResponse) => void;
     logout: () => void;
+    setUser: React.Dispatch<React.SetStateAction<Partial<User> | null>>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     user: null,
     login: () => {},
-    logout: () => {}
+    logout: () => {},
+    setUser: () => {}
 });
 
 interface AuthProviderProps {
@@ -27,9 +29,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const token = localStorage.getItem('token');
         const role = localStorage.getItem('role') as User['role'];
         const username = localStorage.getItem('username');
+        const idStr = localStorage.getItem('id');
+
+        const id = Number(idStr);
         
-        if (token && role && username) {
-            setUser({ token, role, username });
+        if (token && role && username && Number.isFinite(id)) {
+            setUser({ token, role, username, id });
+        } else {
+            localStorage.clear();
+            setUser(null);
         }
     }, []);
 
@@ -37,11 +45,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
         localStorage.setItem('username', data.username);
-        // 这里简单存一些信息，实际项目中可以用 decode jwt 获取更多
-        setUser({ 
-            token: data.token, 
-            role: data.role, 
-            username: data.username 
+        localStorage.setItem('id', String(data.id)); // localStorage只能存字符串
+        setUser({
+            token: data.token,
+            role: data.role,
+            username: data.username,
+            id: data.id
         });
     };
 
@@ -51,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, setUser }}>
             {children}
         </AuthContext.Provider>
     );
