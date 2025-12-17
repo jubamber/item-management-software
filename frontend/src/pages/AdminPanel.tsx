@@ -5,6 +5,7 @@ import api from '../api';
 // 注意：你需要确保 User 类型定义里包含了 phone 和 address，如果之前没定义，可以在 types.ts 里补上，
 // 或者直接在这里扩展接口，如下所示：
 import { type User as BaseUser, type AttributeDefinition } from '../types';
+import Loading from '../components/Loading';
 
 interface User extends BaseUser {
     phone?: string;
@@ -22,19 +23,28 @@ const AdminPanel: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState(''); // 搜索关键词
     const [newType, setNewType] = useState<NewTypeState>({ name: '', attributes: [] });
 
-    useEffect(() => {
-        fetchPendingUsers();
-        fetchApprovedUsers(); // 初始化加载已通过用户
-    }, []);
+    // 新增页面 loading 状态
+    const [pageLoading, setPageLoading] = useState(true);
 
-    const fetchPendingUsers = async () => {
-        try {
-            const res = await api.get<User[]>('/admin/users?status=pending');
-            setPendingUsers(res.data);
-        } catch (err) {
-            console.error("Failed to fetch pending users");
-        }
-    };
+    useEffect(() => {
+        // 加载 pending 和 approved 用户
+        const fetchData = async () => {
+            setPageLoading(true);
+            try {
+                const [pendingRes, approvedRes] = await Promise.all([
+                    api.get<User[]>('/admin/users?status=pending'),
+                    api.get<User[]>(`/admin/users?status=approved&keyword=${searchTerm}`)
+                ]);
+                setPendingUsers(pendingRes.data);
+                setApprovedUsers(approvedRes.data);
+            } catch (err) {
+                console.error("Failed to fetch users", err);
+            } finally {
+                setPageLoading(false); // 所有数据异步加载完成后取消 loading
+            }
+        };
+        fetchData();
+    }, []); // 只在页面首次渲染加载
 
     // 获取已通过用户（支持搜索）
     const fetchApprovedUsers = async (keyword: string = '') => {
@@ -50,8 +60,13 @@ const AdminPanel: React.FC = () => {
 
     const handleApproval = async (userId: number, action: 'approve' | 'reject') => {
         await api.post(`/admin/approve/${userId}`, { action });
-        fetchPendingUsers();
-        fetchApprovedUsers(searchTerm); // 刷新两个列表
+        // 刷新数据
+        const [pendingRes, approvedRes] = await Promise.all([
+            api.get<User[]>('/admin/users?status=pending'),
+            api.get<User[]>(`/admin/users?status=approved&keyword=${searchTerm}`)
+        ]);
+        setPendingUsers(pendingRes.data);
+        setApprovedUsers(approvedRes.data);
     };
 
     // 处理搜索
@@ -61,16 +76,13 @@ const AdminPanel: React.FC = () => {
 
     // 删除用户
     const handleDeleteUser = async (userId: number, username: string) => {
-        if (!window.confirm(`确定要永久删除用户 "${username}" 及其所有物品吗？此操作不可恢复。`)) {
-            return;
-        }
-
+        if (!window.confirm(`确定要永久删除用户 "${username}" 及其所有物品吗？`)) return;
         try {
             await api.delete(`/admin/users/${userId}`);
             alert("用户已删除");
-            fetchApprovedUsers(searchTerm); // 刷新列表
-            // 如果删除的是待审核列表里的（虽然目前逻辑分开，但也可能需要刷新）
-            fetchPendingUsers(); 
+            fetchApprovedUsers(searchTerm);
+            const pendingRes = await api.get<User[]>('/admin/users?status=pending');
+            setPendingUsers(pendingRes.data);
         } catch (e) {
             alert("删除失败");
         }
@@ -122,6 +134,9 @@ const AdminPanel: React.FC = () => {
         }
     };
 
+    // ---------- 如果页面正在加载，显示整页 Loading ----------
+    if (pageLoading) return <Loading />;
+
     return (
         <div>
             <h2>管理员后台</h2>
@@ -157,7 +172,7 @@ const AdminPanel: React.FC = () => {
             </div>
 
             {/* 2. 用户管理区域 (已通过用户) */}
-            <div style={{ marginBottom: '40px', borderTop: '2px dashed #eee', paddingTop: '20px' }}>
+            <div style={partition}>
                 <h3>用户管理 (已通过)</h3>
                 
                 {/* 搜索栏 */}
@@ -248,7 +263,7 @@ const AdminPanel: React.FC = () => {
             </div>
 
             {/* 3. 物品类型管理区域 */}
-            <div style={{ borderTop: '2px solid #ccc', paddingTop: '20px' }}>
+            <div style={partition}>
                 <h3>添加物品类型</h3>
                 <input 
                     placeholder="类型名称 (如: 电子产品)" 
@@ -261,6 +276,17 @@ const AdminPanel: React.FC = () => {
                     *注意：当前为演示模式，新类型将自动包含"品牌"和"新旧程度"两个属性。
                 </p>
             </div>
+            {/* <div style={partition}>
+                <h3>添加物品类型</h3>
+                {username !== 'admin' && (
+                    <button 
+                        onClick={() => handleDeleteUser(u.id, u.username)}
+                        style={deleteBtn}
+                    >
+                        删除
+                    </button>
+                )}
+            </div> */}
         </div>
     );
 };
@@ -301,6 +327,10 @@ const promoteBtn: React.CSSProperties = {
 const demoteBtn: React.CSSProperties = {
     background: '#85d61cff', color: 'white', border: 'none',
     padding: '5px 10px', borderRadius: '4px', cursor: 'pointer'
+};
+
+const partition: React.CSSProperties = {
+    marginBottom: '40px', borderTop: '2px dashed #ccc', paddingTop: '20px'
 };
 
 export default AdminPanel;

@@ -366,6 +366,7 @@ def approve_user(user_id):
     db.session.commit()
     return jsonify({"msg": f"User {action}d"}), 200
 
+
 # 启动
 if __name__ == '__main__':
     with app.app_context():

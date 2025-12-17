@@ -54,33 +54,36 @@ const App: React.FC = () => {
 
     useEffect(() => {
         // 模拟页面加载，实际可以改成 fetch 数据或 token 验证
-        const timer = setTimeout(() => setLoading(false), 1000);
+        const timer = setTimeout(() => setLoading(false), 300);
         return () => clearTimeout(timer);
     }, []);
 
-    if (loading) return <Loading />;
     return (
         <AuthProvider>
-            <Router>
-                <Navbar />
-                <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-                    <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/add-item" element={
-                            <PrivateRoute>
-                                <AddItem />
-                            </PrivateRoute>
-                        } />
-                        <Route path="/admin" element={
-                            <PrivateRoute>
-                                <AdminPanel />
-                            </PrivateRoute>
-                        } />
-                    </Routes>
-                </div>
-            </Router>
+            {loading ? (
+                <Loading />
+            ) : (
+                <Router>
+                    <Navbar />
+                    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+                        <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/add-item" element={
+                                <PrivateRoute>
+                                    <AddItem />
+                                </PrivateRoute>
+                            } />
+                            <Route path="/admin" element={
+                                <PrivateRoute>
+                                    <AdminPanel />
+                                </PrivateRoute>
+                            } />
+                        </Routes>
+                    </div>
+                </Router>
+            )}
         </AuthProvider>
     );
 }
