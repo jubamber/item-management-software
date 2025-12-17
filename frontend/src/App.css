@@ -1,21 +1,223 @@
+/* =========================================
+   1. 全局变量与重置 (Variables & Reset)
+   ========================================= */
+:root {
+  /* 调色板 */
+  --primary-color: #2563eb;       /* 活力蓝 */
+  --primary-hover: #1d4ed8;       /* 深蓝悬停 */
+  --text-main: #1f2937;           /* 主要文字 */
+  --text-secondary: #6b7280;      /* 次要文字 */
+  --bg-body: #f9fafb;             /* 页面背景 */
+  --bg-card: #ffffff;             /* 卡片背景 */
+  --border-color: #e5e7eb;        /* 边框颜色 */
+  --danger-color: #ef4444;        /* 警告/退出色 */
+
+  /* 布局与形状 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --transition: all 0.2s ease-in-out;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #f8f9fa;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.6;
 }
 
-h1 {
-  font-weight: 700;
-  text-shadow: 1px 1px 2px #bbb;
+/* 链接基础样式 - 移除下划线 */
+a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: var(--transition);
 }
 
+a:hover {
+  color: var(--primary-color);
+}
+
+/* =========================================
+   2. 导航栏样式优化 (Navbar Overrides)
+   ========================================= */
+/* 虽然你在 JSX 中写了 inline style，但我们可以通过 CSS 增强内部元素 */
+
+nav {
+  /* 覆盖 inline 的灰色背景，改用白色加投影，更现代 */
+  background-color: #fff !important; 
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  /* 确保导航栏内容垂直居中 */
+  height: 60px; 
+}
+
+/* 导航栏内的链接 */
+nav a {
+  font-size: 15px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+nav a:hover {
+  background-color: #eff6ff; /* 极淡的蓝色背景 */
+  color: var(--primary-color);
+}
+
+/* 专门针对 logo/标题的样式 (假设它是第一个链接) */
+nav a[href="/"]:first-child {
+  font-size: 18px;
+  color: var(--text-main);
+  font-weight: 700 !important;
+  margin-right: 20px !important;
+}
+
+/* 导航栏内的“退出”按钮 */
+nav button {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+nav button:hover {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  background-color: #fef2f2;
+}
+
+/* =========================================
+   3. 表单与交互元素 (Forms & Buttons)
+   即使这些在子组件中，定义在这里可以保证全局统一
+   ========================================= */
+
+/* 页面标题 */
+h1, h2, h3 {
+  margin-top: 0;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* 输入框通用样式 */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+  font-size: 15px;
+  transition: var(--transition);
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 标签样式 */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+/* 主要按钮样式 (登录/注册/发布) */
+button.primary-btn, 
+form button[type="submit"] {
+  width: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 10px;
+}
+
+form button[type="submit"]:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* =========================================
+   4. 通用容器样式 (Containers)
+   用于 Login, Dashboard 等页面
+   ========================================= */
+
+/* 卡片容器：建议在 Login/Dashboard 外部 div 加上 className="card" */
 .card {
-  border-radius: 12px;
-  transition: transform 0.2s;
+  background: var(--bg-card);
+  padding: 30px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  max-width: 500px;
+  margin: 40px auto; /* 居中显示 */
 }
 
-.card:hover {
-  transform: translateY(-5px);
+/* 物品网格布局 (用于 Dashboard) */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 20px 0;
 }
 
-.shadow-sm {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+.item-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.item-content {
+  padding: 16px;
+}
+
+/* =========================================
+   5. 工具类 (Utilities)
+   ========================================= */
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
+.text-small { font-size: 14px; color: var(--text-secondary); }
+
+/* 错误提示消息 */
+.error-msg {
+  color: var(--danger-color);
+  background: #fef2f2;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 15px;
+  font-size: 14px;
 }
