@@ -79,16 +79,30 @@ def create_admin():
         db.session.add(admin)
         
         # 初始化一些类型
-        food_type = ItemType(name='食品', attributes=json.dumps([
-            {"key": "expiry_date", "label": "保质期", "type": "date"},
-            {"key": "quantity", "label": "数量", "type": "number"}
-        ]))
-        book_type = ItemType(name='书籍', attributes=json.dumps([
-            {"key": "author", "label": "作者", "type": "text"},
-            {"key": "isbn", "label": "ISBN", "type": "text"}
-        ]))
-        db.session.add(food_type)
-        db.session.add(book_type)
+        default_types = [
+            {
+                "name": "食品",
+                "attributes": [
+                    {"key": "expiry_date", "label": "保质期", "type": "date"},
+                    {"key": "quantity", "label": "数量", "type": "number"}
+                ]
+            },
+            {
+                "name": "书籍",
+                "attributes": [
+                    {"key": "author", "label": "作者", "type": "text"},
+                    {"key": "isbn", "label": "ISBN", "type": "text"}
+                ]
+            }
+        ]
+
+        for t in default_types:
+            if not ItemType.query.filter_by(name=t["name"]).first():
+                item_type = ItemType(
+                    name=t["name"],
+                    attributes=json.dumps(t["attributes"])
+                )
+                db.session.add(item_type)
         
         db.session.commit()
         print("Admin user and default types created.")
@@ -243,15 +257,96 @@ def get_users():
         return jsonify({"msg": "Admin only"}), 403
         
     status = request.args.get('status')
+    keyword = request.args.get('keyword') # 新增关键词参数
+    
     query = User.query
+    
+    # 筛选状态
     if status:
         query = query.filter_by(status=status)
+    
+    # 筛选关键词 (用户名 或 邮箱 或 电话)
+    if keyword:
+        search_term = f"%{keyword}%"
+        query = query.filter(
+            (User.username.like(search_term)) | 
+            (User.email.like(search_term)) |
+            (User.phone.like(search_term))
+        )
         
     users = query.all()
+    
+    # 返回更详细的信息
     return jsonify([{
-        "id": u.id, "username": u.username, "email": u.email, 
-        "status": u.status, "role": u.role
+        "id": u.id, 
+        "username": u.username, 
+        "email": u.email,
+        "phone": u.phone,
+        "address": u.address,
+        "status": u.status, 
+        "role": u.role
     } for u in users])
+
+# 删除用户接口
+@app.route('/admin/users/<int:user_id>', methods=['DELETE'])
+@jwt_required()
+def delete_user(user_id):
+    identity = get_jwt()
+    if identity['role'] != 'admin':
+        return jsonify({"msg": "Admin only"}), 403
+    
+    user = User.query.get_or_404(user_id)
+    
+    # 防止删除自己（如果需要取消注释下面两行）
+    if str(user.id) == get_jwt_identity():
+        return jsonify({"msg": "Cannot delete yourself"}), 400
+
+    try:
+        # 手动级联删除：先删除该用户发布的所有物品
+        Item.query.filter_by(owner_id=user.id).delete()
+        
+        # 删除用户
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"msg": "User and their items deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Delete failed: {str(e)}"}), 500
+    
+@app.route('/admin/promote/<int:user_id>', methods=['POST'])
+@jwt_required()
+def promote_user(user_id):
+    identity = get_jwt()
+    if identity['role'] != 'admin':
+        return jsonify({"msg": "Admin only"}), 403
+    
+    user = User.query.get_or_404(user_id)
+    if user.role == 'admin':
+        return jsonify({"msg": "User is already an admin"}), 400
+
+    user.role = 'admin'
+    db.session.commit()
+    return jsonify({"msg": f"{user.username} has been promoted to admin"}), 200
+
+@app.route('/admin/demote/<int:user_id>', methods=['POST'])
+@jwt_required()
+def demote_user(user_id):
+    identity = get_jwt()
+    current_user_id = int(get_jwt_identity())
+    
+    if identity['role'] != 'admin':
+        return jsonify({"msg": "Admin only"}), 403
+    
+    if user_id == current_user_id:
+        return jsonify({"msg": "Cannot demote yourself"}), 400  # 防止降级自己
+
+    user = User.query.get_or_404(user_id)
+    if user.role != 'admin':
+        return jsonify({"msg": "User is not an admin"}), 400
+
+    user.role = 'user'
+    db.session.commit()
+    return jsonify({"msg": f"{user.username} has been demoted to user"}), 200
 
 @app.route('/admin/approve/<int:user_id>', methods=['POST'])
 @jwt_required()
