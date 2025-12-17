@@ -1,7 +1,7 @@
 // src/App.tsx
 // 主程序入口
 
-import React, { useContext, type ReactNode } from 'react';
+import React, { useContext, useEffect, useState, type ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './AuthContext';
 import Login from './pages/Login';
@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AddItem from './pages/AddItem';
 import AdminPanel from './pages/AdminPanel';
+import Loading from './components/loading';
 import './App.css'; 
 
 const Navbar: React.FC = () => {
@@ -49,6 +50,15 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 };
 
 const App: React.FC = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // 模拟页面加载，实际可以改成 fetch 数据或 token 验证
+        const timer = setTimeout(() => setLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) return <Loading />;
     return (
         <AuthProvider>
             <Router>
