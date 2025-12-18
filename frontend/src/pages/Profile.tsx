@@ -84,7 +84,7 @@ const Profile: React.FC = () => {
         <div className="page-container-narrow">
         <div className="profile-container">
             <h2>个人中心</h2>
-            <div className="dashboard-card">
+            <div className="profile-dashboard-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3>{profile.username}</h3>
                     <span className="role-badge">{profile.role}</span>
@@ -117,7 +117,7 @@ const Profile: React.FC = () => {
                     </form>
                 ) : (
                     <div>
-                        <ul className="dashboard-list">
+                        <ul className="profile-dashboard-list">
                             <li><strong>电话:</strong> {profile.phone || '未填写'}</li>
                             <li><strong>地址:</strong> {profile.address || '未填写'}</li>
                         </ul>

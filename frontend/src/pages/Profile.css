@@ -12,7 +12,7 @@
 }
 
 /* 个人信息主卡片 */
-.dashboard-card {
+.profile-dashboard-card {
   background-color: var(--bg-card);
   padding: 30px;
   border-radius: var(--radius-md);
@@ -21,7 +21,7 @@
   transition: var(--transition);
 }
 
-.dashboard-card h3 {
+.profile-dashboard-card h3 {
   margin: 0;
   font-size: 24px;
   color: var(--text-main);
@@ -50,13 +50,13 @@
 /* =========================================
    展示列表 (Display Mode)
    ========================================= */
-.dashboard-list {
+.profile-dashboard-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.dashboard-list li {
+.profile-dashboard-list li {
   padding: 16px 0;
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -66,12 +66,12 @@
 }
 
 /* 列表最后一项去掉底边框，看起来更整洁 */
-.dashboard-list li:last-child {
+.profile-dashboard-list li:last-child {
   border-bottom: none;
 }
 
 /* 列表项的标签部分 (e.g. "电话:") */
-.dashboard-list li strong {
+.profile-dashboard-list li strong {
   display: inline-block;
   min-width: 80px; /* 固定宽度确保对齐 */
   color: var(--text-secondary);

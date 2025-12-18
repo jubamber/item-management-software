@@ -3,7 +3,8 @@
 /* --- 网格布局 --- */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  /* ✨ 修改：使用 CSS 变量，设定默认值为 360px */
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width, 360px), 1fr));
   gap: 20px;
   padding-bottom: 40px;
 }
@@ -11,7 +12,8 @@
 /* --- 卡片样式 --- */
 .dashboard-card {
   position: relative;
-  aspect-ratio: 3 / 4;
+  /* ✨ 修改：使用 CSS 变量，设定默认值为 4/3 */
+  aspect-ratio: var(--card-aspect-ratio, 4 / 3);
   border-radius: 12px;
   overflow: hidden; /* 关键：由父容器统一负责裁剪圆角 */
   cursor: pointer;
