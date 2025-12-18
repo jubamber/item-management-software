@@ -48,7 +48,7 @@
   来压制全局的 input[type="text"] (权重 0-1-1)
 */
 .dashboard-filter-bar .dashboard-input {
-  flex: 1;            
+  flex: 1;    /* 自动占满 */
   padding: 0 12px;
   
   /* 【关键修复 3】必须显式重置，否则会被全局样式撑开 */

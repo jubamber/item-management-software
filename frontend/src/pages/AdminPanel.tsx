@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState, useContext } from 'react';
 import api from '../api';
-// 注意：你需要确保 User 类型定义里包含了 phone 和 address，如果之前没定义，可以在 types.ts 里补上，
-// 或者直接在这里扩展接口，如下所示：
 import { AuthContext } from '../AuthContext';
 import { type User as BaseUser, type AttributeDefinition } from '../types';
 import Loading from '../components/Loading';
+import './AdminPanel.css'; // <--- 引入刚才创建的 CSS 文件
 
 interface User extends BaseUser {
     phone?: string;
@@ -19,18 +18,15 @@ interface NewTypeState {
 }
 
 const AdminPanel: React.FC = () => {
-    const { user } = useContext(AuthContext); // 获取当前登录用户信息
+    const { user } = useContext(AuthContext);
 
     const [pendingUsers, setPendingUsers] = useState<User[]>([]);
-    const [approvedUsers, setApprovedUsers] = useState<User[]>([]); // 已审核用户列表
-    const [searchTerm, setSearchTerm] = useState(''); // 搜索关键词
+    const [approvedUsers, setApprovedUsers] = useState<User[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [newType, setNewType] = useState<NewTypeState>({ name: '', attributes: [] });
-
-    // 新增页面 loading 状态
     const [pageLoading, setPageLoading] = useState(true);
 
     useEffect(() => {
-        // 加载 pending 和 approved 用户
         const fetchData = async () => {
             setPageLoading(true);
             try {
@@ -43,16 +39,14 @@ const AdminPanel: React.FC = () => {
             } catch (err) {
                 console.error("Failed to fetch users", err);
             } finally {
-                setPageLoading(false); // 所有数据异步加载完成后取消 loading
+                setPageLoading(false);
             }
         };
         fetchData();
-    }, []); // 只在页面首次渲染加载
+    }, []);
 
-    // 获取已通过用户（支持搜索）
     const fetchApprovedUsers = async (keyword: string = '') => {
         try {
-            // status=approved 且带上 keyword
             const url = `/admin/users?status=approved&keyword=${keyword}`;
             const res = await api.get<User[]>(url);
             setApprovedUsers(res.data);
@@ -63,7 +57,6 @@ const AdminPanel: React.FC = () => {
 
     const handleApproval = async (userId: number, action: 'approve' | 'reject') => {
         await api.post(`/admin/approve/${userId}`, { action });
-        // 刷新数据
         const [pendingRes, approvedRes] = await Promise.all([
             api.get<User[]>('/admin/users?status=pending'),
             api.get<User[]>(`/admin/users?status=approved&keyword=${searchTerm}`)
@@ -72,12 +65,10 @@ const AdminPanel: React.FC = () => {
         setApprovedUsers(approvedRes.data);
     };
 
-    // 处理搜索
     const handleSearch = () => {
         fetchApprovedUsers(searchTerm);
     };
 
-    // 删除用户
     const handleDeleteUser = async (userId: number, username: string) => {
         if (!window.confirm(`确定要永久删除用户 "${username}" 及其所有物品吗？`)) return;
         try {
@@ -111,45 +102,40 @@ const AdminPanel: React.FC = () => {
         }
     };
 
-    // 提升为管理员
     const handlePromote = async (userId: number, username: string) => {
         if (!window.confirm(`确定将用户 "${username}" 提升为管理员吗？`)) return;
-
         try {
             await api.post(`/admin/promote/${userId}`);
             alert(`${username} 已被提升为管理员`);
-            fetchApprovedUsers(searchTerm); // 刷新列表
+            fetchApprovedUsers(searchTerm);
         } catch (e) {
             alert("操作失败");
         }
     };
 
-    // 降为普通用户
     const handleDemote = async (userId: number, username: string) => {
         if (!window.confirm(`确定将用户 "${username}" 降为普通用户吗？`)) return;
-
         try {
             await api.post(`/admin/demote/${userId}`);
             alert(`${username} 已降为普通用户`);
-            fetchApprovedUsers(searchTerm); // 刷新列表
+            fetchApprovedUsers(searchTerm);
         } catch (e) {
             alert("操作失败");
         }
     };
 
-    // ---------- 如果页面正在加载，显示整页 Loading ----------
     if (pageLoading) return <Loading />;
 
     return (
-        <div>
+        <div className="admin-container">
             <h2>管理员后台</h2>
             
             {/* 1. 待审核用户区域 */}
-            <div style={{ marginBottom: '40px' }}>
+            <div className="admin-section">
                 <h3>待审核用户</h3>
-                {pendingUsers.length === 0 ? <p style={{color: '#888'}}>无待审核用户</p> : (
-                    <table style={tableStyle}>
-                        <thead style={theadStyle}>
+                {pendingUsers.length === 0 ? <p className="empty-text">无待审核用户</p> : (
+                    <table className="admin-table">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>用户名</th>
@@ -164,8 +150,18 @@ const AdminPanel: React.FC = () => {
                                     <td>{u.username}</td>
                                     <td>{u.email}</td>
                                     <td>
-                                        <button onClick={() => handleApproval(u.id, 'approve')} style={approveBtn}>通过</button>
-                                        <button onClick={() => handleApproval(u.id, 'reject')} style={rejectBtn}>拒绝</button>
+                                        <button 
+                                            onClick={() => handleApproval(u.id, 'approve')} 
+                                            className="btn-text approve"
+                                        >
+                                            通过
+                                        </button>
+                                        <button 
+                                            onClick={() => handleApproval(u.id, 'reject')} 
+                                            className="btn-text reject"
+                                        >
+                                            拒绝
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -175,24 +171,37 @@ const AdminPanel: React.FC = () => {
             </div>
 
             {/* 2. 用户管理区域 (已通过用户) */}
-            <div style={partition}>
+            <div className="partition">
                 <h3>用户管理 (已通过)</h3>
                 
                 {/* 搜索栏 */}
-                <div style={{ marginBottom: '15px' }}>
+                <div className="toolbar">
                     <input 
                         type="text" 
                         placeholder="搜索用户名、邮箱或电话..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ padding: '8px', width: '250px', marginRight: '10px' }}
+                        // 添加 admin-control 以确保高度一致
+                        className="search-input admin-control" 
                     />
-                    <button onClick={handleSearch} style={{ padding: '8px 15px' }}>搜索</button>
-                    <button onClick={() => { setSearchTerm(''); fetchApprovedUsers(''); }} style={{ marginLeft: '10px', padding: '8px 15px' }}>重置</button>
+                    <button 
+                        onClick={handleSearch} 
+                        // 移除 style，使用新类名
+                        className="admin-control btn-primary-action"
+                    >
+                        搜索
+                    </button>
+                    <button 
+                        onClick={() => { setSearchTerm(''); fetchApprovedUsers(''); }} 
+                        // 移除 style，使用新类名
+                        className="admin-control btn-secondary-action"
+                    >
+                        重置
+                    </button>
                 </div>
 
-                <table style={tableStyle}>
-                    <thead style={theadStyle}>
+                <table className="admin-table">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>用户名</th>
@@ -206,17 +215,14 @@ const AdminPanel: React.FC = () => {
                     </thead>
                     <tbody>
                         {approvedUsers.length === 0 ? (
-                            <tr><td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>未找到用户</td></tr>
+                            <tr><td colSpan={8} style={{ padding: '20px' }}>未找到用户</td></tr>
                         ) : (
                             approvedUsers.map(u => (
                                 <tr key={u.id}>
                                     <td>{u.id}</td>
                                     <td><strong>{u.username}</strong></td>
                                     <td>
-                                        <span style={{ 
-                                            background: u.role === 'admin' ? '#ffd43b' : '#e7f5ff',
-                                            padding: '2px 6px', borderRadius: '4px', fontSize: '12px'
-                                        }}>
+                                        <span className={`role-badge ${u.role === 'admin' ? 'admin' : 'user'}`}>
                                             {u.role}
                                         </span>
                                     </td>
@@ -224,11 +230,10 @@ const AdminPanel: React.FC = () => {
                                     <td>{u.phone || '-'}</td>
                                     <td>{u.address || '-'}</td>
                                     <td>
-                                        {/* 只有当: 不是超级admin 且 不是当前登录用户自己 时，才显示删除按钮 */}
                                         {u.username !== 'admin' && u.username !== user?.username ? (
                                             <button 
                                                 onClick={() => handleDeleteUser(u.id, u.username)}
-                                                style={deleteBtn}
+                                                className="btn-sm btn-delete"
                                             >
                                                 删除
                                             </button>
@@ -240,22 +245,19 @@ const AdminPanel: React.FC = () => {
                                         {u.role === 'user' && (
                                             <button 
                                                 onClick={() => handlePromote(u.id, u.username)}
-                                                style={promoteBtn}
+                                                className="btn-sm btn-promote"
                                             >
                                                 提升为管理员
                                             </button>
                                         )}
-                                        {/* 降级逻辑: 只有当是admin 且 不是超级admin且 不是当前登录用户自己*/}
                                         {u.role === 'admin' && u.username !== 'admin' && u.username !== user?.username && (
                                             <button 
                                                 onClick={() => handleDemote(u.id, u.username)}
-                                                style={demoteBtn}
+                                                className="btn-sm btn-demote"
                                             >
                                                 降为普通用户
                                             </button>
                                         )}
-
-                                        {/* 如果是超级admin或者自己，显示占位符 */}
                                         {(u.username === 'admin' || u.username === user?.username) && u.role === 'admin' && (
                                             <div>-</div>
                                         )}
@@ -268,63 +270,30 @@ const AdminPanel: React.FC = () => {
             </div>
 
             {/* 3. 物品类型管理区域 */}
-            <div style={partition}>
+            <div className="partition">
                 <h3>添加物品类型</h3>
-                <input 
-                    placeholder="类型名称 (如: 电子产品)" 
-                    value={newType.name}
-                    onChange={e => setNewType({ ...newType, name: e.target.value })}
-                    style={{ padding: '8px', marginRight: '10px' }}
-                />
-                <button onClick={handleAddType} style={{ padding: '8px 15px' }}>添加类型</button>
-                <p style={{ fontSize: '12px', color: 'gray', marginTop: '5px' }}>
+                <div className="toolbar">
+                    <input 
+                        placeholder="类型名称 (如: 电子产品)" 
+                        value={newType.name}
+                        onChange={e => setNewType({ ...newType, name: e.target.value })}
+                        // 添加 admin-control
+                        className="search-input admin-control"
+                    />
+                    <button 
+                        onClick={handleAddType} 
+                        // 移除 style，使用新类名
+                        className="admin-control btn-primary-action" 
+                    >
+                        添加类型
+                    </button>
+                </div>
+                <p className="hint-text">
                     *注意：当前为演示模式，新类型将自动包含"品牌"和"新旧程度"两个属性。
                 </p>
             </div>
         </div>
     );
-};
-
-// ---------- 公共样式 ----------
-const tableStyle: React.CSSProperties = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '14px',
-    marginBottom: '20px',
-    textAlign: 'center'  // <- 加上这一行
-};
-
-const theadStyle: React.CSSProperties = {
-    background: '#f8f9fa'
-};
-
-const approveBtn: React.CSSProperties = {
-    marginRight: '10px',
-    color: 'green'
-};
-
-const rejectBtn: React.CSSProperties = {
-    color: 'red'
-};
-
-const deleteBtn: React.CSSProperties = {
-    background: '#ff6b6b', color: 'white', border: 'none',
-    padding: '5px 10px', borderRadius: '4px', cursor: 'pointer',
-    marginRight: '5px'
-};
-
-const promoteBtn: React.CSSProperties = {
-    background: '#1c7ed6', color: 'white', border: 'none',
-    padding: '5px 10px', borderRadius: '4px', cursor: 'pointer'
-};
-
-const demoteBtn: React.CSSProperties = {
-    background: '#85d61cff', color: 'white', border: 'none',
-    padding: '5px 10px', borderRadius: '4px', cursor: 'pointer'
-};
-
-const partition: React.CSSProperties = {
-    marginBottom: '40px', borderTop: '2px dashed #ccc', paddingTop: '20px'
 };
 
 export default AdminPanel;
