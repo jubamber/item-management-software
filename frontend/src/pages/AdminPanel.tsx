@@ -18,6 +18,11 @@ interface NewTypeState {
     attributes: AttributeDefinition[];
 }
 
+// 简单的随机字符串生成函数
+const generateRandomKey = () => {
+    return 'attr_' + Math.random().toString(36).substr(2, 9);
+};
+
 const AdminPanel: React.FC = () => {
     const { user } = useContext(AuthContext);
 
@@ -133,7 +138,11 @@ const AdminPanel: React.FC = () => {
     const addAttributeRow = () => {
         setNewType(prev => ({
             ...prev,
-            attributes: [...prev.attributes, { key: '', label: '', type: 'text', required: false }]
+            attributes: [
+                ...prev.attributes, 
+                // key 初始化为随机字符串
+                { key: generateRandomKey(), label: '', type: 'text', required: false }
+            ]
         }));
     };
     const removeAttributeRow = (index: number) => {
@@ -143,9 +152,6 @@ const AdminPanel: React.FC = () => {
     const updateAttribute = (index: number, field: keyof AttributeDefinition, value: any) => {
         const updatedAttrs = [...newType.attributes];
         updatedAttrs[index] = { ...updatedAttrs[index], [field]: value };
-        if (field === 'label' && !updatedAttrs[index].key) {
-            updatedAttrs[index].key = value.trim().toLowerCase().replace(/\s+/g, '_');
-        }
         setNewType(prev => ({ ...prev, attributes: updatedAttrs }));
     };
     const handleOptionsChange = (index: number, value: string) => {
@@ -206,7 +212,10 @@ const AdminPanel: React.FC = () => {
     const addAttrRowEdit = () => {
         setEditingTypeState(prev => ({
             ...prev,
-            attributes: [...prev.attributes, { key: '', label: '', type: 'text', required: false }]
+            attributes: [
+                ...prev.attributes, 
+                { key: generateRandomKey(), label: '', type: 'text', required: false }
+            ]
         }));
     };
 
@@ -218,9 +227,6 @@ const AdminPanel: React.FC = () => {
     const updateAttrEdit = (index: number, field: keyof AttributeDefinition, value: any) => {
         const updatedAttrs = [...editingTypeState.attributes];
         updatedAttrs[index] = { ...updatedAttrs[index], [field]: value };
-        if (field === 'label' && !updatedAttrs[index].key) {
-            updatedAttrs[index].key = value.trim().toLowerCase().replace(/\s+/g, '_');
-        }
         setEditingTypeState(prev => ({ ...prev, attributes: updatedAttrs }));
     };
 
@@ -354,7 +360,14 @@ const AdminPanel: React.FC = () => {
                         <div key={index} className="attribute-row">
                             <div className="attr-inputs">
                                 <input placeholder="名称 (如: 颜色)" value={attr.label} onChange={e => updateAttribute(index, 'label', e.target.value)} className="control-input attr-field" />
-                                <input placeholder="Key (如: color)" value={attr.key} onChange={e => updateAttribute(index, 'key', e.target.value)} className="control-input attr-field" />
+                                <input 
+                                    placeholder="Key" 
+                                    value={attr.key} 
+                                    onChange={e => updateAttribute(index, 'key', e.target.value)} // 如果想完全禁止修改，可以去掉 onChange 或改为 readOnly
+                                    className="control-input attr-field" 
+                                    style={{ backgroundColor: '#f5f5f5', color: '#666' }} // 视觉上置灰
+                                    title="自动生成的唯一标识"
+                                />
                                 <select value={attr.type} onChange={e => updateAttribute(index, 'type', e.target.value)} className="control-input attr-field">
                                     <option value="text">文本</option><option value="number">数字</option><option value="date">日期</option><option value="select">下拉选项</option>
                                 </select>
@@ -418,10 +431,12 @@ const AdminPanel: React.FC = () => {
                                         className="control-input attr-field"
                                     />
                                     <input 
-                                        placeholder="Key (如: color)"
-                                        value={attr.key}
-                                        onChange={e => updateAttrEdit(index, 'key', e.target.value)}
-                                        className="control-input attr-field"
+                                        placeholder="Key" 
+                                        value={attr.key} 
+                                        onChange={e => updateAttribute(index, 'key', e.target.value)} // 如果想完全禁止修改，可以去掉 onChange 或改为 readOnly
+                                        className="control-input attr-field" 
+                                        style={{ backgroundColor: '#f5f5f5', color: '#666' }} // 视觉上置灰
+                                        title="自动生成的唯一标识"
                                     />
                                     <select 
                                         value={attr.type}

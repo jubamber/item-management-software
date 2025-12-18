@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 from flask import Flask, request, jsonify 
 from flask_sqlalchemy import SQLAlchemy # ORM
+from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS # 处理跨域请求
 from flask_jwt_extended import (
     JWTManager,
@@ -177,18 +178,26 @@ def get_types():
 @app.route('/types', methods=['POST'])
 @jwt_required()
 def add_type():
-    identity = get_jwt()  # 获取额外载荷
+    identity = get_jwt()
     if identity['role'] != 'admin':
         return jsonify({"msg": "Admin only"}), 403
     
     data = request.json
-    new_type = ItemType(
-        name=data['name'],
-        attributes=json.dumps(data['attributes']) # Expect list of dicts
-    )
-    db.session.add(new_type)
-    db.session.commit()
-    return jsonify({"msg": "Type added"}), 201
+    try:
+        new_type = ItemType(
+            name=data['name'],
+            attributes=json.dumps(data['attributes'])
+        )
+        db.session.add(new_type)
+        db.session.commit()
+        return jsonify({"msg": "Type added"}), 201
+        
+    except IntegrityError:
+        db.session.rollback() # 发生错误必须回滚
+        return jsonify({"msg": "类型名称已存在，请更换名称"}), 400 # 返回明确的 400 错误
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Server Error: {str(e)}"}), 500
 
 @app.route('/types/<int:type_id>', methods=['PUT'])
 @jwt_required()
@@ -200,15 +209,22 @@ def update_type(type_id):
     item_type = ItemType.query.get_or_404(type_id)
     data = request.json
     
-    if 'name' in data:
-        item_type.name = data['name']
-    
-    if 'attributes' in data:
-        # 接收到的是列表，需要转回 json 字符串存储
-        item_type.attributes = json.dumps(data['attributes'])
+    try:
+        if 'name' in data:
+            item_type.name = data['name']
         
-    db.session.commit()
-    return jsonify({"msg": "Type updated successfully"}), 200
+        if 'attributes' in data:
+            item_type.attributes = json.dumps(data['attributes'])
+            
+        db.session.commit()
+        return jsonify({"msg": "Type updated successfully"}), 200
+        
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "该类型名称已存在，无法修改为该名称"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Error: {str(e)}"}), 500
 
 @app.route('/types/<int:type_id>', methods=['DELETE'])
 @jwt_required()
