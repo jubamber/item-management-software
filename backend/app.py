@@ -300,13 +300,25 @@ def get_items():
     type_id = request.args.get('type_id')
     keyword = request.args.get('keyword')
     owner_id = request.args.get('owner_id')
+    # ✨✨ 新增：获取 status 参数 ✨✨
+    status = request.args.get('status') 
     
     query = Item.query
     if type_id: query = query.filter_by(type_id=type_id)
     if owner_id: query = query.filter_by(owner_id=owner_id)
+    
+    # ✨✨ 新增：根据状态筛选 ✨✨
+    if status: 
+        query = query.filter_by(status=status)
+
     if keyword:
         search = f"%{keyword}%"
-        query = query.filter((Item.name.like(search)) | (Item.description.like(search)))
+        # 支持搜索 名称、描述 或 地址
+        query = query.filter(
+            (Item.name.like(search)) | 
+            (Item.description.like(search)) |
+            (Item.address.like(search)) # 顺便增强一下搜索，支持搜地址
+        )
         
     items = query.order_by(Item.created_at.desc()).all()
     

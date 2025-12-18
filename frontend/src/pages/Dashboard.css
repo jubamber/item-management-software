@@ -263,3 +263,68 @@
   /* 手机端卡片里的名字和标签可能需要换行 */
   .overlay-left { max-width: 65%; flex-wrap: wrap; gap: 4px; }
 }
+
+/* --- 增强 Filter Bar 布局 --- */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap; /* 允许在小屏幕换行 */
+  margin-bottom: 25px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #f0f0f0;
+}
+
+/* 搜索框容器，让它在剩余空间伸缩 */
+.search-group {
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+/* 输入框去除默认下边距 */
+.search-input {
+  margin-bottom: 0 !important;
+  width: 100%;
+}
+
+/* 按钮组容器 */
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .filter-bar {
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  /* 手机上让下拉框各占一半宽度，或者全宽 */
+  .filter-bar select {
+    flex: 1; 
+    min-width: 40%;
+  }
+
+  /* 搜索框单独占一行 */
+  .search-group {
+    order: 3; /* 将搜索框排到下面 */
+    min-width: 100%;
+    margin-top: 5px;
+  }
+  
+  .filter-actions {
+    order: 4;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+  
+  .filter-actions button {
+    flex: 1;
+  }
+}

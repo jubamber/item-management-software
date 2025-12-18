@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const [items, setItems] = useState<Item[]>([]);
     const [types, setTypes] = useState<ItemType[]>([]);
-    const [filters, setFilters] = useState({ type_id: '', keyword: '' });
+    const [filters, setFilters] = useState({ type_id: '', keyword: '', status: 'available' });
     const [onlyMyItems, setOnlyMyItems] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -94,19 +94,19 @@ const Dashboard: React.FC = () => {
             const params: any = {};
             if (filters.type_id) params.type_id = filters.type_id;
             if (filters.keyword) params.keyword = filters.keyword;
+            // 新增 status 参数
+            if (filters.status) params.status = filters.status;
+            
             if (onlyMyItems && user?.id) params.owner_id = user.id;
 
             const res = await api.get<Item[]>('/items', { params });
             
-            // 1. 先将数据设置进状态（此时界面仍被 Loading 遮罩覆盖）
             setItems(res.data);
 
-            // 2. 筛选出有图片的物品，构建预加载队列
             const imagePromises = res.data
-                .filter(item => item.image_path) // 过滤掉没有图片的
+                .filter(item => item.image_path)
                 .map(item => preloadImage(`${API_BASE_URL}${item.image_path}`));
 
-            // 3. 等待所有图片加载完成（Promise.all 并发加载）
             if (imagePromises.length > 0) {
                 await Promise.all(imagePromises);
             }
@@ -114,10 +114,26 @@ const Dashboard: React.FC = () => {
         } catch (error) { 
             console.error(error); 
         } finally { 
-            // 4. 图片全部就绪后，才移除 Loading
             if (shouldSetLoading) setLoading(false); 
         }
     };
+
+    // ✨✨ 新增：重置筛选功能 ✨✨
+    const handleReset = () => {
+        setFilters({ type_id: '', keyword: '', status: '' }); // 重置所有条件
+        setOnlyMyItems(false);
+        // 这里需要一个小技巧：由于 setState 是异步的，直接调用 fetchItems 可能还是旧状态
+        // 我们最好通过 useEffect 监听 filters 变化，或者手动传入空参数调用
+        // 简单起见，我们做一个延时，或者依赖 useEffect，这里我们改用 useEffect 监听 filters 变化自动搜索会更现代
+    };
+
+    // 💡 建议优化：让筛选条件的改变自动触发搜索（除 Keyword 外，避免输入时频繁请求）
+    // 如果你希望下拉菜单改变就立即刷新，可以使用下面的 useEffect：
+    useEffect(() => {
+        fetchItems(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters.type_id, filters.status, onlyMyItems]); 
+    // 注意：不要把 filters.keyword 放进去，否则每打一个字都会请求
 
     // ✨✨ 新增：布局配置状态 ✨✨
     const [layoutConfig, setLayoutConfig] = useState({
@@ -239,7 +255,9 @@ const Dashboard: React.FC = () => {
     return (
         <div className="page-container">
             {/* ... Filter Bar 保持不变 ... */}
+            {/* ✨✨ 3. 增强版 Filter Bar ✨✨ */}
             <div className="filter-bar">
+                {/* 分类筛选 */}
                 <select 
                     onChange={(e) => setFilters({ ...filters, type_id: e.target.value })}
                     className="control-input"
@@ -248,33 +266,65 @@ const Dashboard: React.FC = () => {
                     <option value="">所有分类</option>
                     {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
-                <input 
-                    type="text"
-                    placeholder="搜索..." 
-                    onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
-                    className="control-input flex-grow"
-                    value={filters.keyword}
-                />
-                {user && (
-                    <button 
-                        onClick={() => setOnlyMyItems(!onlyMyItems)}
-                        className={`btn-action ${onlyMyItems ? 'btn-primary' : 'btn-secondary'}`}
-                    >
-                        {onlyMyItems ? '查看全部' : '只看我的'}
-                    </button>
-                )}
-                <button onClick={handleSearch} className="btn-action btn-primary">搜索</button>
-                {/* ✨✨ 新增：视图设置切换按钮 ✨✨ */}
-                <button 
-                    onClick={() => setShowViewSettings(!showViewSettings)}
-                    className={`btn-action ${showViewSettings ? 'btn-primary' : 'btn-secondary'}`} // ✨ 按钮颜色也随状态变一下
-                    title="调整视图布局"
-                    style={{ marginLeft: '0px', padding: '0 10px' }}
+
+                {/* ✨ 新增：状态筛选 */}
+                <select 
+                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                    className="control-input"
+                    value={filters.status}
+                    style={{ minWidth: '110px' }}
                 >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>
-                    </svg>
-                </button>
+                    <option value="">全部状态</option>
+                    <option value="available">待领取</option>
+                    <option value="taken">已领走</option>
+                </select>
+
+                {/* 关键词搜索 */}
+                <div className="search-group flex-grow">
+                    <input 
+                        type="text"
+                        placeholder="🔍 搜索物品名称、描述..." 
+                        onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()} // 回车搜索
+                        className="control-input search-input"
+                        style={{ width: '100%', margin: 0 }} // 覆盖默认margin
+                        value={filters.keyword}
+                    />
+                </div>
+
+                {/* 按钮组 */}
+                <div className="filter-actions">
+                    <button onClick={handleSearch} className="btn-action btn-primary">搜索</button>
+                    
+                    {/* 清空/重置按钮 */}
+                    {(filters.type_id || filters.status || filters.keyword || onlyMyItems) && (
+                        <button onClick={handleReset} className="btn-action btn-secondary" title="重置所有筛选">
+                            ↺
+                        </button>
+                    )}
+
+                    {user && (
+                        <button 
+                            onClick={() => setOnlyMyItems(!onlyMyItems)}
+                            className={`btn-action ${onlyMyItems ? 'btn-primary' : 'btn-secondary'}`}
+                            title="只看我发布的"
+                        >
+                            {onlyMyItems ? '我的物品' : '全部物品'}
+                        </button>
+                    )}
+
+                    {/* 视图切换按钮 (保持原有) */}
+                    <button 
+                        onClick={() => setShowViewSettings(!showViewSettings)}
+                        className={`btn-action ${showViewSettings ? 'btn-primary' : 'btn-secondary'}`}
+                        title="调整视图布局"
+                        style={{ padding: '0 10px' }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             {/* ✨✨ 新增：视图控制面板 (可折叠) ✨✨ */}
