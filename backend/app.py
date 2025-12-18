@@ -178,6 +178,43 @@ def add_type():
     db.session.commit()
     return jsonify({"msg": "Type added"}), 201
 
+@app.route('/types/<int:type_id>', methods=['PUT'])
+@jwt_required()
+def update_type(type_id):
+    identity = get_jwt()
+    if identity['role'] != 'admin':
+        return jsonify({"msg": "Admin only"}), 403
+    
+    item_type = ItemType.query.get_or_404(type_id)
+    data = request.json
+    
+    if 'name' in data:
+        item_type.name = data['name']
+    
+    if 'attributes' in data:
+        # 接收到的是列表，需要转回 json 字符串存储
+        item_type.attributes = json.dumps(data['attributes'])
+        
+    db.session.commit()
+    return jsonify({"msg": "Type updated successfully"}), 200
+
+@app.route('/types/<int:type_id>', methods=['DELETE'])
+@jwt_required()
+def delete_type(type_id):
+    identity = get_jwt()
+    if identity['role'] != 'admin':
+        return jsonify({"msg": "Admin only"}), 403
+    
+    item_type = ItemType.query.get_or_404(type_id)
+    
+    # 检查是否有物品正在使用该类型，如果有则阻止删除（或做级联删除）
+    if Item.query.filter_by(type_id=type_id).first():
+        return jsonify({"msg": "Cannot delete type: It is being used by existing items."}), 400
+        
+    db.session.delete(item_type)
+    db.session.commit()
+    return jsonify({"msg": "Type deleted successfully"}), 200
+
 # 3. 物品管理模块
 @app.route('/items', methods=['POST'])
 @jwt_required()
