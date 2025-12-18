@@ -26,26 +26,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<Partial<User> | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const role = localStorage.getItem('role') as User['role'];
-        const username = localStorage.getItem('username');
-        const idStr = localStorage.getItem('id');
+        const token = sessionStorage.getItem('token');
+        const role = sessionStorage.getItem('role') as User['role'];
+        const username = sessionStorage.getItem('username');
+        const idStr = sessionStorage.getItem('id');
 
         const id = Number(idStr);
         
         if (token && role && username && Number.isFinite(id)) {
             setUser({ token, role, username, id });
         } else {
-            localStorage.clear();
+            // 如果缺少信息，确保清理干净
+            sessionStorage.clear();
             setUser(null);
         }
     }, []);
 
     const login = (data: LoginResponse) => {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('id', String(data.id)); // localStorage只能存字符串
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('role', data.role);
+        sessionStorage.setItem('username', data.username);
+        sessionStorage.setItem('id', String(data.id));
+
         setUser({
             token: data.token,
             role: data.role,
@@ -55,8 +57,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const logout = () => {
-        localStorage.clear();
+        sessionStorage.clear();
         setUser(null);
+        // 推荐登出后重定向到首页或登录页
+        window.location.href = '/'; 
     };
 
     return (

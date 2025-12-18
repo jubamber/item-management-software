@@ -24,10 +24,11 @@ const Navbar: React.FC = () => {
             await api.delete(`/users/${user.id}`);
             alert("账户已注销");
             setUser(null);
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            localStorage.removeItem('username');
-            window.location.href = '/'; // 刷新到首页
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('role');
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('id');
+            window.location.href = '/'; 
         } catch (error) {
             console.error(error);
             alert("注销失败");
@@ -45,7 +46,7 @@ const Navbar: React.FC = () => {
                     {user.role === 'admin' && <Link to="/admin" className="navbar-link">管理员后台</Link>}
                     <div className="navbar-user">
                         欢迎, <strong>{user.username}</strong>
-                        <button onClick={logout} className="navbar-btn1">退出</button>
+                        <button onClick={logout} className="navbar-btn1">登出</button>
                         {
                             user.username !== 'admin' && <button onClick={handleDeleteAccount} className="navbar-btn2">注销</button>
                         }
