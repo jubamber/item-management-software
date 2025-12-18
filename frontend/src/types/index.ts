@@ -11,9 +11,11 @@ export interface User {
 }
 
 export interface AttributeDefinition {
-    key: string;
-    label: string;
-    type: 'text' | 'number' | 'date';
+    key: string;      // 存入数据库的键名 (如: expiry_date)
+    label: string;    // 显示给用户的名称 (如: 保质期)
+    type: 'text' | 'number' | 'date' | 'select'; // 增加 select 类型
+    options?: string[]; // 当 type 为 select 时，存储选项列表 (如: ["S", "M", "L"])
+    required?: boolean; // 可选：是否必填
 }
 
 export interface ItemType {

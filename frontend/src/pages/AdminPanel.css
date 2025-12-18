@@ -198,3 +198,212 @@
 .btn-promote:focus {
   box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
 }
+
+/* =========================================
+   添加物品类型 (自定义属性编辑器) 样式优化
+   ========================================= */
+
+/* 1. 编辑器主容器：灰色背景，类似一个工作台 */
+.attributes-editor {
+  background-color: #f8fafc; /* 极淡的灰蓝背景 */
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-top: 10px;
+}
+
+.attributes-editor h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 15px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+/* 2. 单个属性行 (卡片样式) */
+.attribute-row {
+  background: #ffffff;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  
+  /* 使得整个卡片看起来是一个整体块 */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attribute-row:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+/* 3. 输入字段的一行 (Flex布局) */
+.attr-inputs {
+  display: flex;
+  gap: 12px;
+  align-items: center; /* 垂直居中所有输入框 */
+  flex-wrap: wrap;     /* 屏幕窄时允许换行 */
+}
+
+/* 属性里的具体输入框 */
+.attr-inputs .attr-field {
+  flex: 1;              /* 均分宽度 */
+  min-width: 140px;     /* 最小宽度，防止太挤 */
+  margin-bottom: 0 !important; /* 覆盖全局input的margin */
+}
+
+/* 必填复选框区域 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0 8px;
+  user-select: none;
+  
+  /* --- 修复垂直居中和下方空白的关键代码 --- */
+  margin-bottom: 0 !important; /* 强制去除全局 label 的下边距 */
+  height: 38px;                /* 强制高度与 input 输入框一致，确保对齐 */
+  /* ------------------------------------- */
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  margin: 0; /* 确保 input 自身没有外边距 */
+}
+
+/* 删除按钮 (红色 X - 修复垂直居中) */
+.attribute-row .btn-delete {
+  flex-shrink: 0;
+  
+  /* --- 布局核心：与输入框高度一致 --- */
+  height: 38px;      /* 关键：匹配 input 的高度 */
+  width: 38px;       /* 设置为正方形，点击体验更好 */
+  margin-left: auto; /* 靠右对齐 */
+  margin-bottom: 0 !important; /* 去除下边距 */
+  
+  /* --- 内部对齐 --- */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* --- 视觉微调 --- */
+  padding: 0;        /* 重置 padding */
+  padding-bottom: 4px; /* 关键：视觉修正，将 × 符号向上顶一点 */
+  
+  /* --- 样式重置与外观 --- */
+  background-color: transparent !important;
+  border: none;
+  box-shadow: none !important;
+  border-radius: 4px; /* 稍微给一点圆角，虽然背景透明看不到，但 focus 时有用 */
+  
+  /* --- 字体样式 --- */
+  color: #ef4444; 
+  font-size: 28px; 
+  font-weight: 400; 
+  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s;
+}
+/* 悬停效果：不再显示红色背景，而是放大且颜色加深 */
+.attribute-row .btn-delete:hover {
+  background-color: transparent !important;
+  color: #ef4646;       /* 深红色 */
+  transform: scale(1.2); /* 放大 1.2 倍 */
+}
+
+/* 聚焦时的样式：去除默认光晕，改为图标颜色变化 */
+.attribute-row .btn-delete:focus {
+  outline: none;
+  color: #ef4646;
+}
+
+
+/* 4. 下拉选项的输入区域 (子面板) */
+.options-row {
+  background-color: #f0f9ff; /* 极淡的蓝色背景 */
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px dashed #bae6fd; /* 虚线边框 */
+  margin-top: 4px;
+  position: relative;
+  
+  /* 左侧装饰条 */
+  border-left: 4px solid #3b82f6;
+}
+
+/* 指示箭头 (可选装饰) */
+.options-row::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 0; 
+  height: 0; 
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #bae6fd;
+}
+
+.options-row input {
+  margin-bottom: 6px !important;
+  background-color: #fff;
+}
+
+.hint-text {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+  font-family: monospace; /* 代码字体显示预览更清晰 */
+}
+
+/* 5. 底部操作栏 */
+.action-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+  margin-top: 10px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .attributes-editor {
+    padding: 15px;
+  }
+  
+  .attr-inputs {
+    flex-direction: column; /* 手机端垂直排列 */
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .attr-inputs .attr-field {
+    width: 100%;
+  }
+  
+  .checkbox-label {
+    padding: 8px 0;
+  }
+  
+  .attribute-row .btn-delete {
+    width: 100%;
+    border-radius: 6px;
+    margin-top: 5px;
+  }
+}
