@@ -119,6 +119,15 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    // ✨✨ 新增：布局配置状态 ✨✨
+    const [layoutConfig, setLayoutConfig] = useState({
+        minWidth: 360,     // 对应 grid minmax 的像素值
+        aspectRatio: 1.33, // 对应 4/3 ≈ 1.33
+    });
+
+    // ✨✨ 新增：控制面板显隐状态 ✨✨
+    const [showViewSettings, setShowViewSettings] = useState(false);
+
     const handleSearch = () => fetchItems(true);
 
     const handleDelete = async (id: number) => {
@@ -255,12 +264,103 @@ const Dashboard: React.FC = () => {
                     </button>
                 )}
                 <button onClick={handleSearch} className="btn-action btn-primary">搜索</button>
+                {/* ✨✨ 新增：视图设置切换按钮 ✨✨ */}
+                <button 
+                    onClick={() => setShowViewSettings(!showViewSettings)}
+                    className={`btn-action ${showViewSettings ? 'btn-primary' : 'btn-secondary'}`} // ✨ 按钮颜色也随状态变一下
+                    title="调整视图布局"
+                    style={{ marginLeft: '0px', padding: '0 10px' }}
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>
+                    </svg>
+                </button>
             </div>
+
+            {/* ✨✨ 新增：视图控制面板 (可折叠) ✨✨ */}
+            {showViewSettings && (
+                <div style={{
+                    background: '#fff',
+                    padding: '15px 20px',
+                    marginBottom: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '30px',
+                    alignItems: 'center',
+                    border: '1px solid #eee'
+                }}>
+                    {/* 卡片宽度控制 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <label style={{ fontSize: '12px', color: '#666', fontWeight: 600 }}>
+                            卡片大小 (最小宽度): {layoutConfig.minWidth}px
+                        </label>
+                        <input 
+                            type="range" 
+                            min="150" 
+                            max="500" 
+                            step="10" 
+                            value={layoutConfig.minWidth}
+                            onChange={(e) => setLayoutConfig({...layoutConfig, minWidth: Number(e.target.value)})}
+                            style={{ width: '200px', cursor: 'pointer' }}
+                        />
+                    </div>
+
+                    {/* 卡片比例控制 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <label style={{ fontSize: '12px', color: '#666', fontWeight: 600 }}>
+                            长宽比 (Aspect Ratio): {layoutConfig.aspectRatio.toFixed(2)}
+                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <input 
+                                type="range" 
+                                min="0.5" 
+                                max="2.0" 
+                                step="0.01" 
+                                value={layoutConfig.aspectRatio}
+                                onChange={(e) => setLayoutConfig({...layoutConfig, aspectRatio: Number(e.target.value)})}
+                                style={{ width: '200px', cursor: 'pointer' }}
+                            />
+                            {/* 快速预设按钮 */}
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                                <button 
+                                    onClick={() => setLayoutConfig({...layoutConfig, aspectRatio: 9/16})}
+                                    style={{ fontSize: '10px', padding: '2px 6px', cursor: 'pointer' }}
+                                >9:16</button>
+                                <button 
+                                    onClick={() => setLayoutConfig({...layoutConfig, aspectRatio: 3/4})}
+                                    style={{ fontSize: '10px', padding: '2px 6px', cursor: 'pointer' }}
+                                >3:4</button>
+                                <button 
+                                    onClick={() => setLayoutConfig({...layoutConfig, aspectRatio: 1})}
+                                    style={{ fontSize: '10px', padding: '2px 6px', cursor: 'pointer' }}
+                                >1:1</button>
+                                <button 
+                                    onClick={() => setLayoutConfig({...layoutConfig, aspectRatio: 4/3})}
+                                    style={{ fontSize: '10px', padding: '2px 6px', cursor: 'pointer' }}
+                                >4:3</button>
+                                <button 
+                                    onClick={() => setLayoutConfig({...layoutConfig, aspectRatio: 16/9})}
+                                    style={{ fontSize: '10px', padding: '2px 6px', cursor: 'pointer' }}
+                                >16:9</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {items.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>暂无物品</p>
             ) : (
-                <div className="dashboard-grid">
+                <div 
+                    className="dashboard-grid"
+                    // ✨✨ 核心修改：通过 style 注入 CSS 变量 ✨✨
+                    style={{
+                        '--card-min-width': `${layoutConfig.minWidth}px`,
+                        '--card-aspect-ratio': layoutConfig.aspectRatio
+                    } as React.CSSProperties}
+                >
                     {items.map(item => (
                         <div 
                             key={item.id} 
