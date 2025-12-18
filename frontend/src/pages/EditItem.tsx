@@ -97,11 +97,28 @@ const EditItem: React.FC = () => {
             <h2>编辑物品 / 更新状态</h2>
             <form onSubmit={handleSubmit}>
                 {/* 1. 插入图片上传组件 */}
-                <div className="form-group">
-                    <ImageUploader 
-                        currentImage={formData.image_path}
-                        onImageUploaded={(path) => setFormData({...formData, image_path: path})}
-                    />
+                <div className="form-group edit-image-section">
+                    <label>物品示意图:</label>
+                    
+                    {/* 上部分：上传组件 */}
+                    <div className="upload-wrapper">
+                        <ImageUploader 
+                            onImageUploaded={(path) => setFormData({...formData, image_path: path})}
+                        />
+                    </div>
+
+                    {/* 下部分：预览图片 (如果存在) */}
+                    {formData.image_path && (
+                        <div className="preview-wrapper-vertical">
+                            <div className="uploaded-preview-container">
+                                <img 
+                                    src={`http://localhost:5000${formData.image_path}`} 
+                                    alt="当前物品预览" 
+                                    className="uploaded-preview-img"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="form-group">
                     <label>物品名称 <span style={{color: 'red'}}>*</span>:</label>

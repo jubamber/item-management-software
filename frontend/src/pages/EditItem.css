@@ -157,3 +157,61 @@
     background-color: #e59797;
     color: white;
 }
+
+/* =========================================
+   新增：图片上传区域样式 (复用 AddItem 风格)
+   ========================================= */
+
+/* 1. 复用：已上传图片的预览容器 (与 AddItem 一致) */
+.uploaded-preview-container {
+    /* 布局定位 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto; 
+    
+    /* 尺寸自适应 */
+    width: fit-content;       /* 容器宽度跟随图片宽度 */
+    height: auto;             
+
+    /* 边框样式 (类似相框的效果) */
+    padding: 5px;             
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+    background-color: #fff;   
+}
+
+/* 2. 复用：预览图片本体 (与 AddItem 一致) */
+.uploaded-preview-img {
+    height: 180px;            /* 固定高度 */
+    width: auto;              /* 宽度等比自适应 */
+    display: block;           
+    object-fit: contain;      
+    border-radius: 8px;       
+}
+
+/* =========================================
+   EditItem 特有：垂直布局控制
+   ========================================= */
+
+/* 3. 垂直预览包裹层：控制图片和上方上传组件的间距 */
+.preview-wrapper-vertical {
+    margin-top: 20px; /* 在上传组件下方留出空隙 */
+    width: 100%;
+    display: flex;
+    justify-content: center; /* 让图片在整个表单中间显示 */
+    animation: fadeIn 0.5s ease;
+}
+
+/* 4. 上传组件包裹层 */
+.upload-wrapper {
+    width: 100%;
+    /* 确保上传组件充满宽度，或者居中，根据需求调整 */
+}
+
+/* 5. 调整 edit-image-section 内部 label 的间距 */
+.edit-image-section label {
+    display: block;
+    margin-bottom: 10px;
+}

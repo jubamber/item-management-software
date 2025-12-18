@@ -1,17 +1,18 @@
+/* src/components/ImageUploader.css */
+
 .image-uploader-container {
-    margin-bottom: 20px;
-    border: 1px dashed #ccc;
-    padding: 15px;
-    border-radius: 8px;
-    background: #f9f9f9;
+    width: 100%;
 }
 
+/* --- 裁剪器样式 (保持原样，或微调) --- */
 .cropper-wrapper {
     display: flex;
     flex-direction: column;
     height: 400px;
     position: relative;
     background: #333;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .cropper-area {
@@ -21,60 +22,103 @@
 }
 
 .cropper-controls {
-    padding: 10px;
+    padding: 15px;
     background: white;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    border-top: 1px solid #eee;
 }
 
 .zoom-slider {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+.zoom-slider input {
+    flex: 1;
 }
 
 .cropper-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 12px;
 }
 
-.preview-area {
+.btn-primary, .btn-secondary {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    color: white;
+}
+.btn-primary:hover { background-color: #1d4ed8; }
+
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+.btn-secondary:hover { background-color: #d1d5db; }
+
+
+/* --- 新增：拖拽上传区域样式 --- */
+
+.upload-drop-zone {
+    width: 100%;
+    height: 180px; /* 控制高度 */
+    
+    /* 圆角虚线边框 */
+    border: 2px dashed #d1d5db; 
+    border-radius: 12px;
+    background-color: #f9fafb;
+    
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
+    
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.current-image-preview img {
-    max-width: 200px;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+/* Hover 或 拖拽进入时的状态 */
+.upload-drop-zone:hover,
+.upload-drop-zone.active {
+    border-color: #2563eb; /* 激活色 */
+    background-color: #eff6ff;
 }
 
 .hidden-input {
     display: none;
 }
 
-.upload-btn-label {
-    display: inline-block;
-    padding: 8px 16px;
-    background-color: #2196F3;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
+/* 图标样式 */
+.upload-icon {
+    color: #6b7280; /* 深灰色 */
+    margin-bottom: 12px;
 }
 
-.upload-btn-label:hover {
-    background-color: #1976D2;
+.upload-drop-zone:hover .upload-icon {
+    color: #2563eb; /* hover时变色 */
 }
 
-.file-hint {
-    font-size: 0.8rem;
-    color: #666;
-    margin-left: 10px;
+/* 文字样式 */
+.upload-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #4b5563; /* 深灰色文字 */
+    margin: 0 0 6px 0;
+}
+
+.upload-hint {
+    font-size: 13px;
+    color: #9ca3af;
 }

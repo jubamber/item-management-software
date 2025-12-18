@@ -139,10 +139,36 @@ const AddItem: React.FC = () => {
                     <>
                     {/* 图片上传组件 */}
                     <div className="form-group">
-                        <ImageUploader 
-                        currentImage={null}
-                        onImageUploaded={(path) => setFormData({ ...formData, image_path: path })}
-                        />
+                        <label>物品示意图:</label>
+                        
+                        {/* 
+                           使用 form-content 复用栅格布局 
+                           添加 conditional class: has-image 用来控制宽度切换
+                        */}
+                        <div className={`form-content image-upload-section ${formData.image_path ? 'has-image' : ''}`}>
+                            
+                            {/* 左侧：上传组件 */}
+                            <div className="form-left" style={{ display: 'flex', alignItems: 'center'}}>
+                                <ImageUploader 
+                                    onImageUploaded={(path) => setFormData({ ...formData, image_path: path })}
+                                />
+                                {/* 如果你想让用户知道可以替换，可以在这里加个小提示 */}
+                            </div>
+
+                            {/* 右侧：预览图片 (仅在有图片时显示) */}
+                            {formData.image_path && (
+                                /* 添加 preview-wrapper 类名以便 CSS 控制垂直居中 */
+                                <div className="form-right preview-wrapper"> 
+                                    <div className="uploaded-preview-container">
+                                        <img 
+                                            src={`http://localhost:5000${formData.image_path}`} 
+                                            alt="已上传预览" 
+                                            className="uploaded-preview-img"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* 提交按钮 */}

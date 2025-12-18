@@ -152,3 +152,53 @@
   width: 0; /* 关键：防止内容过长撑破 flex 布局 */
   padding-left: 0; /* 移除之前可能存在的 padding，改用 gap 控制间距 */
 }
+
+/* 
+   修改：已上传图片的预览容器 
+   1. 使用 display: flex 和 justify-content: center 让内部图片居中
+   2. width: fit-content 让容器宽度紧贴图片宽度
+   3. margin: 0 auto 让整个容器在父级(form-right)中水平居中
+*/
+.uploaded-preview-container {
+    /* 布局定位 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 0 auto; 
+    
+    /* 尺寸自适应 */
+    width: fit-content;       /* 关键：容器宽度跟随图片宽度 */
+    height: auto;             /* 高度由内容撑开 */
+
+    /* 边框样式 (类似相框的效果) */
+    padding: 5px;             /* 给图片留一点白边 */
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /*稍微加深一点阴影更立体*/
+    background-color: #fff;   /* 确保背景是白色的 */
+}
+
+/* 
+   修改：预览图片本体
+   1. height: 180px 固定高度
+   2. width: auto   宽度自适应(等比缩放)
+*/
+.uploaded-preview-img {
+    height: 180px;            /* 核心：固定高度 */
+    width: auto;              /* 核心：宽度等比自适应 */
+    display: block;           /* 防止图片底部的幽灵空白 */
+    
+    object-fit: contain;      /* 确保图片内容完全显示 */
+    border-radius: 8px;       /* 图片圆角比容器稍微小一点，视觉更协调 */
+}
+
+/* 
+   新增：为了确保在右侧栏垂直方向也是居中的（可选，视需求而定）
+   需要修改 TSX 中包裹它的 .preview-wrapper
+*/
+.preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直居中 */
+    height: 100%;            /* 占满右侧栏高度 */
+}
