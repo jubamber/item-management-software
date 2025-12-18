@@ -1,0 +1,112 @@
+/* =========================================
+   AddItem 页面专用样式
+   ========================================= */
+
+/* 
+   1. 主容器
+   建议在 TSX 中将 <div style={{...}}> 替换为 <div className="add-item-container">
+   这样可以利用 App.css 中定义的卡片效果
+*/
+.add-item-container {
+  max-width: 600px; /* 比原先的 500px 稍宽，视觉更舒展 */
+  margin: 40px auto;
+  padding: 30px 40px;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+/* 标题样式微调 */
+.add-item-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  font-size: 24px;
+}
+
+/* 
+   2. 表单分组
+   App.css 已经处理了 input 的样式，这里主要处理布局间距
+*/
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* 强制 label 与 input 对齐感更好 */
+.form-group label {
+  margin-bottom: 8px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+/* 
+   3. 文本域特定样式
+   防止用户随意拖动破坏布局，只允许垂直拖动
+*/
+.add-item-container textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit; /* 继承全局字体 */
+}
+
+/* 
+   4. 动态属性区域的分隔
+   针对那个 <h4>{selectedType.name} 特有属性</h4>
+   做一个漂亮的分割线，区分基础信息和特有属性
+*/
+.add-item-container h4 {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed var(--border-color); /* 虚线分割 */
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.add-item-container h4::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background-color: var(--primary-color);
+  margin-right: 10px;
+  border-radius: 2px;
+}
+
+/* 
+   5. 提交按钮微调
+   覆盖 inline style 的 margin-top，并增加尺寸感
+*/
+.add-item-container button[type="submit"] {
+  margin-top: 30px !important; /* 覆盖内联样式 */
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.add-item-container button[type="submit"]:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+/* 
+   6. 响应式适配
+   在移动端去掉外边距和阴影，让表单填满屏幕
+*/
+@media (max-width: 640px) {
+  .add-item-container {
+    margin: 0;
+    max-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    padding: 20px;
+  }
+}

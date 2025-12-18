@@ -5,6 +5,7 @@ import React, { useState, useEffect, type FormEvent, type ChangeEvent } from 're
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { type ItemType } from '../types';
+import './AddItem.css';
 
 const AddItem: React.FC = () => {
     const navigate = useNavigate();
@@ -48,7 +49,7 @@ const AddItem: React.FC = () => {
     };
 
     return (
-        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+        <div className="add-item-container">
             <h2>发布新物品</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
