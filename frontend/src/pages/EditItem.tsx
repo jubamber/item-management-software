@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api';
 import { type Item, type ItemType } from '../types';
 import Loading from '../components/Loading';
+import ImageUploader from '../components/ImageUploader';
 import './EditItem.css';
 
 const EditItem: React.FC = () => {
@@ -14,7 +15,7 @@ const EditItem: React.FC = () => {
     const [currentType, setCurrentType] = useState<ItemType | null>(null);
 
     const [formData, setFormData] = useState({
-        name: '', description: '', address: '', phone: '', email: '', status: 'available'
+        name: '', description: '', address: '', phone: '', email: '', status: 'available', image_path: ''
     });
     
     const [attrData, setAttrData] = useState<Record<string, string>>({});
@@ -41,7 +42,8 @@ const EditItem: React.FC = () => {
                     address: item.address,
                     phone: '', // API 返回中可能没有这些字段，视后端而定
                     email: '', 
-                    status: item.status
+                    status: item.status,
+                    image_path: item.image_path || '' 
                 });
                 
                 setAttrData(item.attributes);
@@ -94,6 +96,13 @@ const EditItem: React.FC = () => {
         <div className="edit-item-container">
             <h2>编辑物品 / 更新状态</h2>
             <form onSubmit={handleSubmit}>
+                {/* 1. 插入图片上传组件 */}
+                <div className="form-group">
+                    <ImageUploader 
+                        currentImage={formData.image_path}
+                        onImageUploaded={(path) => setFormData({...formData, image_path: path})}
+                    />
+                </div>
                 <div className="form-group">
                     <label>物品名称 <span style={{color: 'red'}}>*</span>:</label>
                     <input 

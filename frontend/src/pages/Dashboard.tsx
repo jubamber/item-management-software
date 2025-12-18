@@ -8,6 +8,9 @@ import { type Item, type ItemType } from '../types';
 import Loading from '../components/Loading';
 import './Dashboard.css';
 
+// 定义 API 基础路径，方便拼接图片
+const API_BASE_URL = 'http://localhost:5000'; 
+
 const Dashboard: React.FC = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -141,7 +144,19 @@ const Dashboard: React.FC = () => {
 
                         return (
                             <div key={item.id} className={`dashboard-card ${item.status === 'taken' ? 'card-taken' : ''}`}>
-                                <div>
+                                {/* 新增：显示图片 */}
+                                <div className="card-image-wrapper">
+                                    {item.image_path ? (
+                                        <img 
+                                            src={`${API_BASE_URL}${item.image_path}`} 
+                                            alt={item.name} 
+                                            className="item-card-image"
+                                        />
+                                    ) : (
+                                        <div className="no-image-placeholder">暂无图片</div>
+                                    )}
+                                </div>
+                                <div className="card-content"> {/* 包裹原有内容以便加 padding */}
                                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                         <h3>
                                             {item.name} 

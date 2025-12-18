@@ -12,13 +12,49 @@
   background-color: #fff;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 20px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: var(--transition);
+  
+  /* 新增/修改：为了配合图片显示 */
+  overflow: hidden; 
+  padding: 0; /* 移除原有 padding，由 card-content 接管 */
 }
+
+/* --- 新增：图片区域样式 --- */
+.card-image-wrapper {
+  width: 100%;
+  height: 200px; /* 固定高度 */
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0; /* 防止被压缩 */
+}
+
+.item-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 保持比例填满 */
+}
+
+.no-image-placeholder {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* --- 新增：内容区域样式 (接管原有的 padding) --- */
+.card-content {
+  padding: 15px; 
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----------------------------- */
 
 .dashboard-card:hover {
   transform: translateY(-4px);

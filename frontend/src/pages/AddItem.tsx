@@ -5,6 +5,7 @@ import React, { useState, useEffect, type FormEvent, type ChangeEvent } from 're
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { type ItemType } from '../types';
+import ImageUploader from '../components/ImageUploader';
 import './AddItem.css';
 
 const AddItem: React.FC = () => {
@@ -14,7 +15,7 @@ const AddItem: React.FC = () => {
     
     // 基础表单数据
     const [formData, setFormData] = useState({
-        name: '', description: '', address: '', phone: '', email: ''
+        name: '', description: '', address: '', phone: '', email: '', image_path: ''
     });
     
     // 动态属性数据 (Key-Value)
@@ -135,7 +136,18 @@ const AddItem: React.FC = () => {
 
                 {/* 按钮在 form-content 之外，form 之内 */}
                 {selectedType && (
+                    <>
+                    {/* 图片上传组件 */}
+                    <div className="form-group">
+                        <ImageUploader 
+                        currentImage={null}
+                        onImageUploaded={(path) => setFormData({ ...formData, image_path: path })}
+                        />
+                    </div>
+
+                    {/* 提交按钮 */}
                     <button type="submit">提交物品</button>
+                    </>
                 )}
             </form>
         </div>

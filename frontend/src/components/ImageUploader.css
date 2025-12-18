@@ -1,0 +1,80 @@
+.image-uploader-container {
+    margin-bottom: 20px;
+    border: 1px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.cropper-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    position: relative;
+    background: #333;
+}
+
+.cropper-area {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+.cropper-controls {
+    padding: 10px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.zoom-slider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cropper-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.current-image-preview img {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.hidden-input {
+    display: none;
+}
+
+.upload-btn-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.upload-btn-label:hover {
+    background-color: #1976D2;
+}
+
+.file-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 10px;
+}

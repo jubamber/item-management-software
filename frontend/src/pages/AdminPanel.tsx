@@ -325,6 +325,7 @@ const AdminPanel: React.FC = () => {
                                 <td>
                                     {u.role === 'user' && (<button onClick={() => handlePromote(u.id, u.username)} className="btn-sm btn-promote">提权</button>)}
                                     {u.role === 'admin' && u.username !== 'admin' && u.username !== user?.username && (<button onClick={() => handleDemote(u.id, u.username)} className="btn-sm btn-demote">降权</button>)}
+                                    {(u.username === 'admin' || u.username === user?.username) && <div>-</div>}
                                 </td>
                             </tr>
                         ))}

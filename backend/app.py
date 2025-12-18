@@ -1,6 +1,8 @@
 # app.py
 
 import json
+import os
+import uuid
 from datetime import datetime
 from flask import Flask, request, jsonify 
 from flask_sqlalchemy import SQLAlchemy # ORM
@@ -21,6 +23,14 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production' # 实际使用时需要加密，这里就不修改了
+
+# 图片存储配置
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# 确保目录存在
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 db = SQLAlchemy(app)
 CORS(app)
@@ -56,10 +66,12 @@ class Item(db.Model):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120))
     
-    # 存储特定属性值的 JSON 字符串: {"保质期": "2023-12-31", "作者": "鲁迅"}
+    # 新增图片路径字段
+    image_path = db.Column(db.String(300), nullable=True) 
+
     attributes = db.Column(db.Text, default='{}') 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(20), default='available') # available, taken
+    status = db.Column(db.String(20), default='available')
 
     item_type = db.relationship('ItemType', backref='items')
     owner = db.relationship('User', backref='items')
@@ -219,8 +231,8 @@ def delete_type(type_id):
 @app.route('/items', methods=['POST'])
 @jwt_required()
 def add_item():
-    current_user_id = get_jwt_identity() # 现在这只是一个字符串 ID "1"
-    user = User.query.get(int(current_user_id)) # 转回整数查询数据库
+    current_user_id = get_jwt_identity()
+    user = User.query.get(int(current_user_id))
     data = request.json
     
     new_item = Item(
@@ -228,9 +240,11 @@ def add_item():
         owner_id=user.id,
         name=data['name'],
         description=data.get('description'),
-        address=data.get('address', user.address), # 默认使用用户地址
+        address=data.get('address', user.address),
         phone=data.get('phone', user.phone),
         email=data.get('email', user.email),
+        # 接收 image_path
+        image_path=data.get('image_path', None),
         attributes=json.dumps(data.get('attributes', {})),
         status='available'
     )
@@ -245,17 +259,11 @@ def get_items():
     owner_id = request.args.get('owner_id')
     
     query = Item.query
-    
-    if type_id:
-        query = query.filter_by(type_id=type_id)
-    if owner_id:
-        query = query.filter_by(owner_id=owner_id)
+    if type_id: query = query.filter_by(type_id=type_id)
+    if owner_id: query = query.filter_by(owner_id=owner_id)
     if keyword:
         search = f"%{keyword}%"
-        query = query.filter(
-            (Item.name.like(search)) | 
-            (Item.description.like(search))
-        )
+        query = query.filter((Item.name.like(search)) | (Item.description.like(search)))
         
     items = query.order_by(Item.created_at.desc()).all()
     
@@ -269,6 +277,8 @@ def get_items():
             "address": item.address,
             "owner": item.owner.username,
             "owner_id": item.owner_id,
+            # 返回 image_path
+            "image_path": item.image_path,
             "attributes": json.loads(item.attributes),
             "status": item.status,
             "created_at": item.created_at.strftime('%Y-%m-%d')
@@ -310,6 +320,8 @@ def update_item(item_id):
     if 'address' in data: item.address = data['address']
     if 'phone' in data: item.phone = data['phone']
     if 'email' in data: item.email = data['email']
+    # 更新图片路径
+    if 'image_path' in data: item.image_path = data['image_path']
     
     # 更新状态 (Mark as Taken)
     if 'status' in data:
@@ -503,6 +515,29 @@ def get_user_detail(user_id):
         "role": user.role,
         "status": user.status
     })
+
+# 图片上传接口
+@app.route('/upload', methods=['POST'])
+@jwt_required()
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({"msg": "No file part"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"msg": "No selected file"}), 400
+
+    if file:
+        # 生成唯一文件名
+        ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'jpg'
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        file.save(filepath)
+        
+        # 返回相对路径供前端存储和访问
+        # 注意：前端访问时路径为 http://host:port/static/images/filename
+        return jsonify({"path": f"/static/images/{filename}"}), 201
 
 
 # 启动

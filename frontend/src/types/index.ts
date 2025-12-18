@@ -32,6 +32,7 @@ export interface Item {
     address: string;
     owner: string;
     owner_id: number;
+    image_path?: string | null; 
     attributes: Record<string, any>; // 动态属性键值对
     status: string;
     created_at: string;
