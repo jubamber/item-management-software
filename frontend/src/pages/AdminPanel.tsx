@@ -141,6 +141,8 @@ const AdminPanel: React.FC = () => {
                                 <th>ID</th>
                                 <th>用户名</th>
                                 <th>邮箱</th>
+                                <th>电话</th> 
+                                <th>地址</th> 
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -150,6 +152,8 @@ const AdminPanel: React.FC = () => {
                                     <td>#{u.id}</td>
                                     <td>{u.username}</td>
                                     <td>{u.email}</td>
+                                    <td>{u.phone || '-'}</td>
+                                    <td>{u.address || '-'}</td>
                                     <td>
                                         <button onClick={() => handleApproval(u.id, 'approve')} className="btn-text approve">通过</button>
                                         <button onClick={() => handleApproval(u.id, 'reject')} className="btn-text reject">拒绝</button>

@@ -35,7 +35,7 @@
   
   font-size: 14px;
   margin-bottom: 20px;
-  text-align: left; /* 通常左对齐更易读，也可以改回 center */
+  text-align: center; /* 通常左对齐更易读，也可以改回 center */
   background-color: #fff;
   
   /* 圆角与外边框 */
@@ -138,20 +138,35 @@
 /* 文本操作按钮 (通过/拒绝) */
 .btn-text {
   background: none;
-  border: none;
+  border: 1px solid; /* 添加统一边框 */
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   padding: 6px 12px;
   font-size: 13px;
-  border-radius: 6px;
-  transition: background 0.5s;
+  transition: background 0.3s, border-color 0.3s;
+  margin: 0 12px; /* 左右间距，让按钮分开 */
 }
 
-.btn-text.approve { color: #16a34a; }
-.btn-text.approve:hover { background-color: #dcfce7; }
+/* 通过按钮 */
+.btn-text.approve { 
+  color: #16a34a; 
+  border-color: #16a34a; /* 边框同文字颜色 */
+}
+.btn-text.approve:hover { 
+  background-color: #dcfce7; 
+  border-color: #16a34a;
+}
 
-.btn-text.reject { color: #ef4444; }
-.btn-text.reject:hover { background-color: #fee2e2; }
+/* 拒绝按钮 */
+.btn-text.reject { 
+  color: #ef4444; 
+  border-color: #ef4444; 
+}
+.btn-text.reject:hover { 
+  background-color: #fee2e2; 
+  border-color: #ef4444;
+}
 
 /* 添加类型区域提示 */
 .hint-text {
