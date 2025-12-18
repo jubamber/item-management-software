@@ -1,0 +1,160 @@
+/* src/pages/EditItem.css */
+
+/* 
+ * 复用 App.css 中的变量 
+ * 容器样式：类似于 Login 卡片，但宽度稍宽以容纳更多信息
+ */
+.edit-item-container {
+    background-color: var(--bg-card);
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 标题样式 */
+.edit-item-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+    border-bottom: 2px solid #eff6ff;
+    padding-bottom: 15px;
+}
+
+/* 分区标题 (动态属性前) */
+.edit-item-container h4 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    border-left: 4px solid var(--primary-color);
+    color: var(--text-main);
+    font-size: 16px;
+    background-color: #f9fafb;
+    padding: 8px 12px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* 表单组间距 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* 底部按钮区域：使用 Flex 布局让按钮并排 */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* 保存按钮 (继承 App.css，但覆盖 marginTop) */
+.form-actions button[type="submit"] {
+    margin-top: 0;
+    flex: 2; /* 占据更多宽度 */
+}
+
+/* 取消按钮自定义样式 */
+.btn-cancel {
+    flex: 1;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.btn-cancel:hover {
+    background-color: #f3f4f6;
+    color: var(--text-main);
+    border-color: #d1d5db;
+}
+
+/* 简单的淡入动画 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 响应式适配 */
+@media (max-width: 640px) {
+    .edit-item-container {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse; /* 手机端取消按钮在下 */
+    }
+    
+    .form-actions button {
+        width: 100%;
+    }
+}
+
+/* 状态切换容器：背景灰色，圆角 */
+.status-toggle-container {
+    display: flex;
+    background-color: #f3f4f6;
+    padding: 4px;
+    border-radius: 50px; /* 大圆角 */
+    border: 1px solid var(--border-color);
+    gap: 5px; /* 按钮之间的间距 */
+}
+
+/* 基础按钮样式 */
+.status-btn {
+    flex: 1; /* 两个按钮平分宽度 */
+    padding: 10px 0;
+    border: none;
+    border-radius: 50px; /* 按钮本身也是圆角 */
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑过渡动画 */
+}
+
+/* 鼠标悬停时的微效果 */
+.status-btn:hover:not(.active) {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* ===========================
+   激活状态样式 (Active)
+   =========================== */
+
+/* 当 "待领取" 被选中时 */
+.status-btn.available.active {
+    background-color: #ffffff;
+    color: #059669; /* 绿色文字 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 浮起效果 */
+    font-weight: 600;
+}
+
+/* 当 "已领走" 被选中时 */
+.status-btn.taken.active {
+    background-color: #ffffff;
+    color: #dc2626; /* 红色文字 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: 600;
+}
+
+/* 如果你希望激活时按钮背景变色而不是白色，可以使用下面的代码替代上面的 active 样式：*/
+.status-btn.available.active {
+    background-color: #86dcc1;
+    color: white;
+}
+.status-btn.taken.active {
+    background-color: #e59797;
+    color: white;
+}

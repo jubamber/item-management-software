@@ -1,0 +1,119 @@
+/* src/pages/Profile.css */
+
+/* =========================================
+   个人中心容器与卡片
+   ========================================= */
+
+/* 虽然你在组件中使用了 inline style 控制宽度，
+   但这里定义 .profile-container 方便未来替换 */
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 个人信息主卡片 */
+.dashboard-card {
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.dashboard-card h3 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* =========================================
+   角色徽章 (Role Badge)
+   ========================================= */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eff6ff; /* 极淡的蓝色背景 */
+  color: var(--primary-color);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px; /* 胶囊形状 */
+  text-transform: uppercase; /* 角色名大写 */
+  letter-spacing: 0.5px;
+  height: fit-content;
+}
+
+/* =========================================
+   展示列表 (Display Mode)
+   ========================================= */
+.dashboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start; /* 防止长文本导致标签对不齐 */
+  font-size: 15px;
+  color: var(--text-main);
+}
+
+/* 列表最后一项去掉底边框，看起来更整洁 */
+.dashboard-list li:last-child {
+  border-bottom: none;
+}
+
+/* 列表项的标签部分 (e.g. "电话:") */
+.dashboard-list li strong {
+  display: inline-block;
+  min-width: 80px; /* 固定宽度确保对齐 */
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* =========================================
+   编辑表单 (Edit Mode)
+   ========================================= */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* 继承并微调 label 样式 */
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* 确保输入框在卡片内样式正确 */
+.form-group input {
+  width: 100%;
+  /* 这里的样式主要继承自 App.css，但可以做微调 */
+  background-color: #f9fafb; /*稍微灰一点的背景，区分于卡片白底 */
+}
+
+.form-group input:focus {
+  background-color: #fff;
+}
+
+/* 按钮组容器 */
+.action-buttons {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+/* 修复：移除 App.css 中全局赋予 submit 按钮的 margin-top
+   因为外层的 .action-buttons 已经控制了 24px 的间距 */
+.action-buttons button[type="submit"] {
+  margin-top: 0;
+}

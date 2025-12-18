@@ -253,6 +253,41 @@ def delete_item(item_id):
     db.session.commit()
     return jsonify({"msg": "Item deleted"}), 200
 
+# 3.1 修改物品信息 (含 标记已领走 功能)
+@app.route('/items/<int:item_id>', methods=['PUT'])
+@jwt_required()
+def update_item(item_id):
+    current_user_id = int(get_jwt_identity())
+    identity = get_jwt()
+    item = Item.query.get_or_404(item_id)
+    
+    # 权限验证：只有所有者或管理员可以修改
+    if item.owner_id != current_user_id and identity['role'] != 'admin':
+        return jsonify({"msg": "Permission denied"}), 403
+    
+    data = request.json
+    
+    # 更新基本字段 (如果请求中包含该字段则更新)
+    if 'name' in data: item.name = data['name']
+    if 'description' in data: item.description = data['description']
+    if 'address' in data: item.address = data['address']
+    if 'phone' in data: item.phone = data['phone']
+    if 'email' in data: item.email = data['email']
+    
+    # 更新状态 (Mark as Taken)
+    if 'status' in data:
+        # 限制状态只能是 available 或 taken
+        if data['status'] in ['available', 'taken']:
+            item.status = data['status']
+            
+    # 更新动态属性
+    if 'attributes' in data:
+        # 确保传入的是字典
+        item.attributes = json.dumps(data['attributes'])
+        
+    db.session.commit()
+    return jsonify({"msg": "Item updated successfully"}), 200
+
 # 4. 管理员模块
 @app.route('/admin/users', methods=['GET'])
 @jwt_required()
@@ -390,6 +425,47 @@ def approve_user(user_id):
         
     db.session.commit()
     return jsonify({"msg": f"User {action}d"}), 200
+
+# 4.1 修改个人信息 (User Profile Update)
+@app.route('/users/<int:user_id>', methods=['PUT'])
+@jwt_required()
+def update_user_profile(user_id):
+    current_user_id = int(get_jwt_identity())
+    
+    # 只能修改自己的信息
+    if user_id != current_user_id:
+        return jsonify({"msg": "Permission denied"}), 403
+        
+    user = User.query.get_or_404(user_id)
+    data = request.json
+    
+    if 'phone' in data: user.phone = data['phone']
+    if 'address' in data: user.address = data['address']
+    # 如果需要支持修改密码，需在此处处理 generate_password_hash
+    
+    db.session.commit()
+    return jsonify({"msg": "Profile updated successfully"}), 200
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user_detail(user_id):
+    current_user_id = int(get_jwt_identity())
+    identity = get_jwt()
+    
+    # 允许 admin 查看任何人，或用户查看自己
+    if user_id != current_user_id and identity['role'] != 'admin':
+        return jsonify({"msg": "Permission denied"}), 403
+        
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "phone": user.phone,
+        "address": user.address,
+        "role": user.role,
+        "status": user.status
+    })
 
 
 # 启动

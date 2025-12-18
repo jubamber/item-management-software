@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import AddItem from './pages/AddItem';
 import AdminPanel from './pages/AdminPanel';
 import Loading from './components/Loading';
+import EditItem from './pages/EditItem';
+import Profile from './pages/Profile';
 import api from './api';
 import './App.css'; 
 
@@ -43,6 +45,7 @@ const Navbar: React.FC = () => {
             {user ? (
                 <>
                     <Link to="/add-item" className="navbar-link">发布物品</Link>
+                    <Link to="/profile" className="navbar-link">个人中心</Link>
                     {user.role === 'admin' && <Link to="/admin" className="navbar-link">管理员后台</Link>}
                     <div className="navbar-user">
                         欢迎, <strong>{user.username}</strong>
@@ -102,6 +105,16 @@ const App: React.FC = () => {
                             <Route path="/admin" element={
                                 <PrivateRoute>
                                     <AdminPanel />
+                                </PrivateRoute>
+                            } />
+                            <Route path="/edit-item/:id" element={
+                                <PrivateRoute>
+                                    <EditItem />
+                                </PrivateRoute>
+                            } />
+                            <Route path="/profile" element={
+                                <PrivateRoute>
+                                    <Profile />
                                 </PrivateRoute>
                             } />
                         </Routes>

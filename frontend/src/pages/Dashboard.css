@@ -52,3 +52,29 @@
   line-height: 1.8;
   margin: 0;
 }
+
+/* --- 状态标签 (Status Badge) --- */
+
+/* 基础样式：胶囊形状、字体大小等 */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px; /* 胶囊状圆角 */
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap; /* 防止文字换行 */
+}
+
+/* 状态：待领取 (Available) - 绿色系 */
+.status-badge.available {
+  background-color: #dcfce7; /* 淡绿色背景 */
+  color: #166534;           /* 深绿色文字 */
+  border: 1px solid #bbf7d0; /* 可选：加个淡淡的边框 */
+}
+
+/* 状态：已领走 (Taken) - 灰色系 */
+.status-badge.taken {
+  background-color: #f3f4f6; /* 淡灰色背景 */
+  color: #4b5563;           /* 深灰色文字 */
+  border: 1px solid #e5e7eb; /* 可选：加个淡淡的边框 */
+}
