@@ -28,7 +28,7 @@ const AddItem: React.FC = () => {
         const typeId = parseInt(e.target.value);
         const type = types.find(t => t.id === typeId) || null;
         setSelectedType(type);
-        setAttrData({}); // 重置动态属性
+        setAttrData({}); // 切换类型时重置动态属性
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -44,6 +44,7 @@ const AddItem: React.FC = () => {
             alert('发布成功');
             navigate('/');
         } catch (err) {
+            console.error(err);
             alert('发布失败');
         }
     };
@@ -53,8 +54,8 @@ const AddItem: React.FC = () => {
             <h2>发布新物品</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label>物品类型:</label>
-                    <select required onChange={handleTypeChange}>
+                    <label>物品类型 <span style={{color: 'red'}}>*</span>:</label>
+                    <select required onChange={handleTypeChange} defaultValue="">
                         <option value="">-- 请选择 --</option>
                         {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
@@ -63,28 +64,62 @@ const AddItem: React.FC = () => {
                 {selectedType && (
                     <>
                         <div className="form-group">
-                            <label>物品名称:</label>
-                            <input required type="text" onChange={e => setFormData({...formData, name: e.target.value})} />
+                            <label>物品名称 <span style={{color: 'red'}}>*</span>:</label>
+                            <input 
+                                required 
+                                type="text" 
+                                value={formData.name}
+                                onChange={e => setFormData({...formData, name: e.target.value})} 
+                            />
                         </div>
                         <div className="form-group">
                             <label>描述:</label>
-                            <textarea onChange={e => setFormData({...formData, description: e.target.value})} />
+                            <textarea 
+                                value={formData.description}
+                                onChange={e => setFormData({...formData, description: e.target.value})} 
+                            />
                         </div>
                         <div className="form-group">
                             <label>地址:</label>
-                            <input type="text" onChange={e => setFormData({...formData, address: e.target.value})} />
+                            <input 
+                                type="text" 
+                                value={formData.address}
+                                onChange={e => setFormData({...formData, address: e.target.value})} 
+                            />
                         </div>
                         
                         <h4>{selectedType.name} 特有属性</h4>
                         {selectedType.attributes.map(attr => (
                             <div key={attr.key} className="form-group">
-                                <label>{attr.label}:</label>
-                                <input 
-                                    type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
-                                    required={attr.required} // 记得加上必填校验
-                                    // 使用 attr.key 作为存储键
-                                    onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
-                                />
+                                <label>
+                                    {attr.label}
+                                    {/* 1. 必填项显示红色星号 */}
+                                    {attr.required && <span style={{color: 'red', marginLeft: '4px'}}>*</span>}
+                                    :
+                                </label>
+                                
+                                {/* 2. 判断是否为下拉类型 (select) */}
+                                {attr.type === 'select' && attr.options ? (
+                                    <select
+                                        required={attr.required}
+                                        value={attrData[attr.key] || ''}
+                                        onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
+                                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }} // 简单样式保证美观
+                                    >
+                                        <option value="">-- 请选择 --</option>
+                                        {attr.options.map((opt, idx) => (
+                                            <option key={idx} value={opt}>{opt}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    /* 3. 普通输入框 (text/number/date) */
+                                    <input 
+                                        type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                        required={attr.required} // 绑定 HTML 必填校验
+                                        value={attrData[attr.key] || ''}
+                                        onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
+                                    />
+                                )}
                             </div>
                         ))}
 
