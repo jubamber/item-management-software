@@ -35,7 +35,7 @@ const Register: React.FC = () => {
             <h3>新用户注册</h3>
             <div className="form-group">
                 <label>用户名:</label>
-                <input required name="username" onChange={handleChange} />
+                <input required name="username" type="text" onChange={handleChange} />
             </div>
             <div className="form-group">
                 <label>邮箱:</label>
@@ -47,11 +47,11 @@ const Register: React.FC = () => {
             </div>
             <div className="form-group">
                 <label>手机号:</label>
-                <input name="phone" onChange={handleChange} />
+                <input name="phone" type="text" onChange={handleChange} />
             </div>
             <div className="form-group">
                 <label>住址:</label>
-                <input name="address" onChange={handleChange} />
+                <input name="address" type="text" onChange={handleChange} />
             </div>
             <button type="submit" style={{ marginTop: '20px' }}>提交注册</button>
         </form>

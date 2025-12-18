@@ -168,9 +168,33 @@
   border-color: #ef4444;
 }
 
+.btn-text:focus {
+  outline: none;
+  /* 添加一个通用的灰色淡淡光晕 */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); 
+}
+
 /* 添加类型区域提示 */
 .hint-text {
   font-size: 13px;
   color: #6b7280;
   margin-top: 8px;
+}
+
+/* 1. 基础按钮聚焦时去除 outline */
+.btn-sm:focus {
+  outline: none;
+  /* 添加一个通用的灰色淡淡光晕 */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); 
+}
+
+/* 2. 专门为删除按钮定制红色光晕 (匹配你的红色按钮) */
+.btn-delete:focus {
+  /* 这里的 rgba 颜色对应你的红色 #ef4444 */
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3); 
+}
+
+/* 3. 专门为提权按钮定制蓝色光晕 */
+.btn-promote:focus {
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
 }

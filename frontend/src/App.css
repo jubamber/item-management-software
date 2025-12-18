@@ -138,6 +138,16 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* 针对所有按钮去除默认 outline */
+button:focus {
+    outline: none;
+}
+
+/* 可选：给所有按钮添加一个通用的蓝色聚焦光晕（类似输入框） */
+button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
 /* 标签样式 */
 label {
   display: block;
