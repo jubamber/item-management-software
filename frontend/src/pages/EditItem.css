@@ -6,8 +6,7 @@
  */
 .edit-item-container {
     background-color: var(--bg-card);
-    max-width: 600px;
-    margin: 40px auto;
+    width: 100%;
     padding: 40px;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);

@@ -8,8 +8,8 @@
    这样可以利用 App.css 中定义的卡片效果
 */
 .add-item-container {
-  max-width: 600px; /* 比原先的 500px 稍宽，视觉更舒展 */
-  margin: 40px auto;
+  width: 100%;
+
   padding: 30px 40px;
   background-color: var(--bg-card);
   border-radius: var(--radius-md);

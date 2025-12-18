@@ -90,6 +90,7 @@ const EditItem: React.FC = () => {
     if (loading) return <Loading />;
 
     return (
+        <div className="page-container-narrow">
         <div className="edit-item-container">
             <h2>编辑物品 / 更新状态</h2>
             <form onSubmit={handleSubmit}>
@@ -189,6 +190,7 @@ const EditItem: React.FC = () => {
                     </button>
                 </div>
             </form>
+        </div>
         </div>
     );
 };

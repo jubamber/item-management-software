@@ -50,6 +50,7 @@ const AddItem: React.FC = () => {
     };
 
     return (
+        <div className="page-container-narrow">
         <div className="add-item-container">
             <h2>发布新物品</h2>
             <form onSubmit={handleSubmit}>
@@ -127,6 +128,7 @@ const AddItem: React.FC = () => {
                     </>
                 )}
             </form>
+        </div>
         </div>
     );
 };

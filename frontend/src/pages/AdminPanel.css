@@ -1,11 +1,7 @@
 /* src/pages/AdminPanel.css */
 
 /* --- 布局容器 --- */
-.admin-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
+/* 容器直接继承 */
 
 .admin-section {
   margin-bottom: 40px;

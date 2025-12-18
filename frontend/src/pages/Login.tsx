@@ -30,7 +30,7 @@ const Login: React.FC = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ maxWidth: '300px', margin: '50px auto' }}>
+        <form onSubmit={handleSubmit} className="page-container-narrow">
             <h3>用户登录</h3>
             <div className="form-group">
                 <label>用户名/邮箱:</label>

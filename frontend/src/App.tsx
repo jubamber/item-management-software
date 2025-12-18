@@ -92,7 +92,7 @@ const App: React.FC = () => {
             ) : (
                 <Router>
                     <Navbar />
-                    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+                    <div>
                         <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/login" element={<Login />} />

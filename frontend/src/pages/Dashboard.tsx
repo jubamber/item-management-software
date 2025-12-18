@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
     if (loading) return <Loading />;
 
     return (
-        <div>
+        <div className="page-container">
             <h2>物品列表</h2>
             
             <div className="filter-bar">

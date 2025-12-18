@@ -47,6 +47,23 @@ a:hover {
   color: var(--primary-color);
 }
 
+/* 通用页面容器 */
+/* 用于列表 / dashboard */
+.page-container {
+  width: 100%;        /* 默认占满父容器/屏幕 */
+  max-width: 960px;   /* 最大不超过 960px */
+  margin: 0 auto;     /* 居中 */
+  padding: 20px;
+}
+
+/* 用于表单 / 登录 */
+.page-container-narrow {
+  width: 100%;        /* 默认占满父容器/屏幕 */
+  max-width: 480px;   /* 最大不超过 720px */
+  margin: 0 auto;     /* 居中 */
+  padding: 20px;
+}
+
 /* =========================================
    2. 导航栏样式优化 (Navbar Overrides)
    ========================================= */

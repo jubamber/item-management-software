@@ -31,7 +31,7 @@ const Register: React.FC = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: '50px auto' }}>
+        <form onSubmit={handleSubmit} className="page-container-narrow">
             <h3>新用户注册</h3>
             <div className="form-group">
                 <label>用户名:</label>

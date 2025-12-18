@@ -7,8 +7,7 @@
 /* 虽然你在组件中使用了 inline style 控制宽度，
    但这里定义 .profile-container 方便未来替换 */
 .profile-container {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   padding: 20px;
 }
 

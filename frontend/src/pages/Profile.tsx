@@ -81,6 +81,7 @@ const Profile: React.FC = () => {
     if (!profile) return <div>User not found</div>;
 
     return (
+        <div className="page-container-narrow">
         <div className="profile-container">
             <h2>个人中心</h2>
             <div className="dashboard-card">
@@ -130,6 +131,7 @@ const Profile: React.FC = () => {
                     </div>
                 )}
             </div>
+        </div>
         </div>
     );
 };

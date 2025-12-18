@@ -277,7 +277,7 @@ const AdminPanel: React.FC = () => {
     if (pageLoading) return <Loading />;
 
     return (
-        <div className="admin-container">
+        <div className="page-container">
             <h2>管理员后台</h2>
             
             {/* ... (省略 待审核用户 模块，保持不变) ... */}
