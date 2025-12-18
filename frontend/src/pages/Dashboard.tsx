@@ -45,6 +45,17 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     );
 };
 
+// ✨✨ 新增：图片预加载辅助函数 ✨✨
+// 返回一个 Promise，无论图片加载成功还是失败，都会 resolve，防止因为一张图片 404 导致整个页面卡死
+const preloadImage = (src: string) => {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false); // 即使失败也继续，不阻塞后续流程
+    });
+};
+
 const Dashboard: React.FC = () => {
     // ... 其他状态保持不变 ...
     const { user } = useContext(AuthContext);
@@ -76,6 +87,7 @@ const Dashboard: React.FC = () => {
         try { const res = await api.get<ItemType[]>('/types'); setTypes(res.data); } catch (error) { console.error(error); }
     };
 
+    // ✨✨ 修改：fetchItems 函数 ✨✨
     const fetchItems = async (shouldSetLoading = true) => {
         if (shouldSetLoading) setLoading(true);
         try {
@@ -85,9 +97,26 @@ const Dashboard: React.FC = () => {
             if (onlyMyItems && user?.id) params.owner_id = user.id;
 
             const res = await api.get<Item[]>('/items', { params });
+            
+            // 1. 先将数据设置进状态（此时界面仍被 Loading 遮罩覆盖）
             setItems(res.data);
-        } catch (error) { console.error(error); } 
-        finally { if (shouldSetLoading) setLoading(false); }
+
+            // 2. 筛选出有图片的物品，构建预加载队列
+            const imagePromises = res.data
+                .filter(item => item.image_path) // 过滤掉没有图片的
+                .map(item => preloadImage(`${API_BASE_URL}${item.image_path}`));
+
+            // 3. 等待所有图片加载完成（Promise.all 并发加载）
+            if (imagePromises.length > 0) {
+                await Promise.all(imagePromises);
+            }
+
+        } catch (error) { 
+            console.error(error); 
+        } finally { 
+            // 4. 图片全部就绪后，才移除 Loading
+            if (shouldSetLoading) setLoading(false); 
+        }
     };
 
     const handleSearch = () => fetchItems(true);
