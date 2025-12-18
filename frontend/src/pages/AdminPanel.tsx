@@ -244,7 +244,12 @@ const AdminPanel: React.FC = () => {
         try {
             await api.put(`/types/${editingTypeId}`, editingTypeState);
             alert("类型更新成功");
-            fetchItemTypes(); // 刷新列表
+            setEditingTypeId('');
+            setEditingTypeState({ name: '', attributes: [] });
+            setEditingOptionsInput({});
+
+            // 刷新类型列表
+            fetchItemTypes();
         } catch (e: any) {
             alert("更新失败: " + (e.response?.data?.msg || e.message));
         }

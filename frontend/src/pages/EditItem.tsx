@@ -141,8 +141,10 @@ const EditItem: React.FC = () => {
                                 <label>{attr.label}:</label>
                                 <input 
                                     type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
-                                    value={attrData[attr.label] || ''}
-                                    onChange={e => setAttrData(prev => ({...prev, [attr.label]: e.target.value}))}
+                                    // 修改后: 通过 key 取值
+                                    value={attrData[attr.key] || ''} 
+                                    // 修改后: 通过 key 更新
+                                    onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
                                 />
                             </div>
                         ))}

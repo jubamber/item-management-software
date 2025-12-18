@@ -81,9 +81,9 @@ const AddItem: React.FC = () => {
                                 <label>{attr.label}:</label>
                                 <input 
                                     type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
-                                    required
-                                    // 动态设置属性值
-                                    onChange={e => setAttrData(prev => ({...prev, [attr.label]: e.target.value}))}
+                                    required={attr.required} // 记得加上必填校验
+                                    // 使用 attr.key 作为存储键
+                                    onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
                                 />
                             </div>
                         ))}
