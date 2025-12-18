@@ -1,13 +1,19 @@
 # app.py
 
 import json
+import time
+import threading
 import os
+import sys
 import uuid
+import shutil
+import signal
+import webbrowser  # [新增]
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify 
-from flask_sqlalchemy import SQLAlchemy # ORM
+from flask import Flask, request, jsonify, send_from_directory  # [修改] 新增 send_from_directory
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-from flask_cors import CORS # 处理跨域请求
+from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -15,26 +21,36 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
     get_jwt
-) # jwt认证
-
+)
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 
-app = Flask(__name__)
+# 读取 .env 文件
+load_dotenv()
+FLASK_ENV = os.getenv("FLASK_ENV", "production") 
+
+# 判断运行环境
+if getattr(sys, 'frozen', False):  # exe 打包环境
+    dist_path = os.path.join(sys._MEIPASS, "dist")
+else:  # 开发环境
+    dist_path = "../frontend/dist"
+
+# static_url_path 设置为空字符串或特定路径，避免与 SPA 路由冲突，这里设为 /static 也可以，但配合下面 serve_react 使用 / 也没问题
+app = Flask(__name__, static_folder=dist_path, static_url_path="/")
 
 # 配置
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production' # 实际使用时需要加密，这里就不修改了
+app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production' 
 
 # 配置 Token 过期时间
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=5)   # 短效：5分钟
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)     # 长效：7天
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=5)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)
 
 # 图片存储配置
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# 确保目录存在
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -42,8 +58,27 @@ db = SQLAlchemy(app)
 CORS(app)
 jwt = JWTManager(app)
 
-# ================= 模型定义 (Models) =================
+def clear_upload_folder():
+    """
+    清空上传图片目录 static/images
+    只删除文件，不删除文件夹本身
+    """
+    folder = app.config['UPLOAD_FOLDER']
 
+    if not os.path.exists(folder):
+        return
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}: {e}", flush=True)
+
+# ================= 模型定义 (Models) =================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -51,30 +86,24 @@ class User(db.Model):
     address = db.Column(db.String(200))
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120), unique=True)
-    role = db.Column(db.String(20), default='user')  # user, admin
-    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
+    role = db.Column(db.String(20), default='user')
+    status = db.Column(db.String(20), default='pending')
 
 class ItemType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    # attributes 存储 JSON 字符串: [{"name": "保质期", "type": "date"}, {"name": "作者", "type": "text"}]
-    # type类型可以自定义，不做限制，只要能处理
     attributes = db.Column(db.Text, nullable=False, default='[]')
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type_id = db.Column(db.Integer, db.ForeignKey('item_type.id'), nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     address = db.Column(db.String(200))
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120))
-    
-    # 新增图片路径字段
     image_path = db.Column(db.String(300), nullable=True) 
-
     attributes = db.Column(db.Text, default='{}') 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='available')
@@ -83,9 +112,7 @@ class Item(db.Model):
     owner = db.relationship('User', backref='items')
 
 # ================= 辅助函数 =================
-
 def create_admin():
-    """初始化创建一个默认管理员账号"""
     if not User.query.filter_by(username='admin').first():
         admin = User(
             username='admin',
@@ -96,34 +123,27 @@ def create_admin():
         )
         db.session.add(admin)
         
-        # 初始化一些类型
         default_types = [
-            {
-                "name": "食品",
-                "attributes": [
-                    {"key": "expiry_date", "label": "保质期", "type": "date"},
-                    {"key": "quantity", "label": "数量", "type": "number"}
-                ]
-            },
-            {
-                "name": "书籍",
-                "attributes": [
-                    {"key": "author", "label": "作者", "type": "text"},
-                    {"key": "isbn", "label": "ISBN", "type": "text"}
-                ]
-            }
+            {"name": "食品", "attributes": [{"key": "expiry_date", "label": "保质期", "type": "date"}, {"key": "quantity", "label": "数量", "type": "number"}]},
+            {"name": "书籍", "attributes": [{"key": "author", "label": "作者", "type": "text"}, {"key": "isbn", "label": "ISBN", "type": "text"}]}
         ]
-
         for t in default_types:
             if not ItemType.query.filter_by(name=t["name"]).first():
-                item_type = ItemType(
-                    name=t["name"],
-                    attributes=json.dumps(t["attributes"])
-                )
+                item_type = ItemType(name=t["name"], attributes=json.dumps(t["attributes"]))
                 db.session.add(item_type)
-        
         db.session.commit()
         print("Admin user and default types created.")
+
+# ================= 修复图片访问路由 ================= [新增/修改]
+# 注意：把这个放在 serve_react 之前，或者放在路由部分的任何位置
+
+@app.route('/static/images/<path:filename>')
+def serve_uploaded_image(filename):
+    """
+    专门用于服务上传的图片。
+    这会覆盖 Flask 默认指向 dist 的行为，强制从后端的 upload folder 读取。
+    """
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # ================= 路由接口 (Routes) =================
 
@@ -606,6 +626,8 @@ def reset_database():
         return jsonify({"msg": "Critical Error: Unauthorized access. Only the superuser 'admin' can perform this action."}), 403
 
     try:
+        # 清空图片上传目录
+        clear_upload_folder()
         # 1. 删除所有表
         db.drop_all()
         # 2. 重新创建所有表
@@ -620,9 +642,101 @@ def reset_database():
         return jsonify({"msg": f"Reset failed: {str(e)}"}), 500
 
 
-# 启动
+# 全局变量记录最后一次心跳时间
+last_heartbeat_time = time.time()
+shutdown_signal_time = None  # [新增] 记录收到关闭信号的时间戳
+
+@app.route('/heartbeat', methods=['POST'])
+def heartbeat():
+    global last_heartbeat_time, shutdown_signal_time
+    
+    # 1. 更新最后一次心跳时间
+    last_heartbeat_time = time.time()
+    
+    # 2. [关键逻辑] 如果之前有“关闭倒计时”，现在收到了心跳，说明是刷新，立刻取消关闭
+    if shutdown_signal_time is not None:
+        print("检测到新页面心跳，判断为页面刷新，取消关闭倒计时。", flush=True)
+        shutdown_signal_time = None
+        
+    return "", 204
+
+@app.route('/shutdown', methods=['POST'])
+def receive_shutdown_signal():
+    global shutdown_signal_time
+    # 收到关闭信号，不立即自杀，而是记录时间，进入"待关闭"状态
+    print("收到前端关闭信号 (可能是关闭或刷新)，等待 20秒 确认...", flush=True)
+    shutdown_signal_time = time.time()
+    return jsonify({"msg": "Shutdown signal received, waiting for confirmation..."}), 200
+
+def monitor_shutdown():
+    """后台线程：双重检测机制"""
+    global last_heartbeat_time, shutdown_signal_time
+    print("启动智能心跳监控...", flush=True)
+    
+    server_start_time = time.time()
+    STARTUP_GRACE_PERIOD = 60    # 启动缓冲期
+    HARD_TIMEOUT = 300           # 硬超时：浏览器后台/休眠（防止浏览器降频导致误杀）
+    SOFT_SHUTDOWN_WINDOW = 20    # 软超时：收到关闭信号后的等待期（区分刷新和关闭）
+
+    while True:
+        time.sleep(1)
+        current_time = time.time()
+        
+        # 1. 启动保护期
+        if current_time - server_start_time < STARTUP_GRACE_PERIOD:
+            continue
+            
+        # 2. [逻辑 A] 硬超时检测
+        # 如果超过 2分钟 没有任何心跳（说明浏览器甚至不再后台运行，或者电脑休眠了）
+        if current_time - last_heartbeat_time > HARD_TIMEOUT:
+            print(f"❌ 超过 {HARD_TIMEOUT} 秒未收到心跳，判定非正常断连，停止服务...", flush=True)
+            os.kill(os.getpid(), signal.SIGINT)
+            break
+            
+        # 3. [逻辑 B] 软关闭检测 (响应你的需求)
+        # 如果收到了关闭信号，且过去了 20秒 还没被心跳取消
+        if shutdown_signal_time is not None:
+            elapsed = current_time - shutdown_signal_time
+            if elapsed > SOFT_SHUTDOWN_WINDOW:
+                print(f"✅ 收到关闭信号后 {SOFT_SHUTDOWN_WINDOW} 秒内无新连接，判定为用户关闭，停止服务。", flush=True)
+                os.kill(os.getpid(), signal.SIGINT)
+                break
+
+# ================= [新增] 前端托管与 SPA 路由支持 =================
+# 这部分确保 React/Vue 路由在刷新时不报错 404
+if FLASK_ENV == "production" or getattr(sys, 'frozen', False):
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_react(path):
+        # 如果路径是真实存在的文件（如 /assets/index.js），直接返回文件
+        if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+            return send_from_directory(app.static_folder, path)
+        # 否则返回 index.html，让前端路由接管
+        return send_from_directory(app.static_folder, "index.html")
+
+
+def open_browser():
+    """[新增] 自动打开浏览器"""
+    webbrowser.open("http://127.0.0.1:5000")
+
 if __name__ == '__main__':
+    # 启动监控线程
+    monitor_thread = threading.Thread(target=monitor_shutdown, daemon=True)
+    monitor_thread.start()
+    
+    # 数据库初始化
     with app.app_context():
         db.create_all()
         create_admin()
-    app.run(debug=True, port=5000)
+    
+    # [新增] 根据环境决定是否自动打开浏览器和开启 Debug
+    if FLASK_ENV == "production" or getattr(sys, 'frozen', False):
+        # 生产环境/exe环境：自动打开浏览器，关闭 Debug
+        threading.Timer(1, open_browser).start()
+        debug_mode = False
+    else:
+        # 开发环境：开启 Debug
+        debug_mode = True
+
+    # 启动 Flask (注意：use_reloader=False 必须保持，否则心跳线程会失效)
+    app.run(debug=debug_mode, port=5000, use_reloader=False)

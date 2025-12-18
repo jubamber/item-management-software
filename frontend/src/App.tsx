@@ -37,6 +37,36 @@ const Navbar: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        const HEARTBEAT_URL = 'http://127.0.0.1:5000/heartbeat';
+        const SHUTDOWN_URL = 'http://127.0.0.1:5000/shutdown';
+
+        const sendHeartbeat = () => {
+            fetch(HEARTBEAT_URL, { 
+                method: 'POST', 
+                keepalive: true 
+            }).catch(() => {}); // 忽略错误
+        };
+
+        // 1. [重要] 组件加载时立即发送心跳
+        // 这对于“刷新”至关重要，它会取消后端的关闭倒计时
+        sendHeartbeat();
+
+        // 2. 正常定时心跳
+        const intervalId = setInterval(sendHeartbeat, 2000);
+
+        const handleBeforeUnload = () => {
+            navigator.sendBeacon(SHUTDOWN_URL);
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            clearInterval(intervalId);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">物品交流系统</Link>

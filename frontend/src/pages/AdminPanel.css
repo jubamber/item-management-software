@@ -110,7 +110,7 @@
   border: none;
   font-weight: 500;
   transition: all 0.2s;
-  margin-right: 6px;
+  margin-right: 0px;
 }
 
 .btn-delete { 
