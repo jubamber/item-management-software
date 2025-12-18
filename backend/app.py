@@ -32,14 +32,16 @@ FLASK_ENV = os.getenv("FLASK_ENV", "production")
 # 判断运行环境
 if getattr(sys, 'frozen', False):  # exe 打包环境
     dist_path = os.path.join(sys._MEIPASS, "dist")
+    sql_path = f"sqlite:///{os.path.join(sys._MEIPASS, 'db.sqlite')}"
 else:  # 开发环境
     dist_path = "../frontend/dist"
+    sql_path = 'sqlite:///db.sqlite'
 
 # static_url_path 设置为空字符串或特定路径，避免与 SPA 路由冲突，这里设为 /static 也可以，但配合下面 serve_react 使用 / 也没问题
 app = Flask(__name__, static_folder=dist_path, static_url_path="/")
 
 # 配置
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = sql_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production' 
 
