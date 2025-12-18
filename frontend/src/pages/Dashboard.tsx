@@ -10,14 +10,32 @@ import './Dashboard.css';
 
 const API_BASE_URL = 'http://localhost:5000'; 
 
-// 预定义莫兰迪色系
-const MORANDI_COLORS = [
-    ['#B5C7D3', '#E6EBF0'], ['#D8C4B6', '#F2EBE5'], 
-    ['#C4D7D1', '#E8F1EE'], ['#BFB5D3', '#EBE7F2'], 
-    ['#D3B5B5', '#F0E6E6'], ['#D3CDC4', '#F0EFEA'], 
-];
+// ✨✨ 核心修改：无限莫兰迪色生成器 ✨✨
+const generateMorandiGradient = (id: number) => {
+    // 使用 Math.sin(id * seed) 确保同一个 ID 总是得到相同的结果
+    // 避免使用 Math.random()，否则每次组件重绘颜色都会闪烁
+    const pseudoRandom = (seed: number) => {
+        const x = Math.sin(id * 9999 * seed) * 10000;
+        return x - Math.floor(x);
+    };
 
-// ✨ 新增：状态标签组件 (提取出来复用)
+    // 参数调优：
+    // Hue: 0-360 (全色域)
+    // Saturation: 15-35% (低饱和度，灰感)
+    // Lightness: 75-88% (高明度，透亮感)
+    
+    const h = Math.floor(pseudoRandom(1) * 360); 
+    const s = Math.floor(pseudoRandom(2) * 20) + 15; 
+    const l = Math.floor(pseudoRandom(3) * 13) + 75; 
+
+    // 渐变色：在原色相基础上偏移 45度左右，亮度微调
+    const h2 = (h + 45) % 360;
+    const s2 = s + 5;
+    const l2 = l + 5;
+
+    return `linear-gradient(135deg, hsl(${h}, ${s}%, ${l}%), hsl(${h2}, ${s2}%, ${l2}%))`;
+};
+
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     const isAvailable = status === 'available';
     return (
@@ -28,15 +46,17 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const Dashboard: React.FC = () => {
+    // ... 其他状态保持不变 ...
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [items, setItems] = useState<Item[]>([]);
     const [types, setTypes] = useState<ItemType[]>([]);
-    
     const [filters, setFilters] = useState({ type_id: '', keyword: '' });
     const [onlyMyItems, setOnlyMyItems] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
+    // ... useEffects 和 fetch 逻辑保持不变 ...
 
     useEffect(() => {
         const initData = async () => {
@@ -83,13 +103,8 @@ const Dashboard: React.FC = () => {
 
     const getItemTypeDefinition = (typeName: string) => types.find(t => t.name === typeName);
 
-    const getMorandiGradient = (id: number) => {
-        const index = id % MORANDI_COLORS.length;
-        const [c1, c2] = MORANDI_COLORS[index];
-        return `linear-gradient(45deg, ${c1}, ${c2})`;
-    };
+    // ✨ 注意：原来的 getMorandiGradient 函数已经移除，直接使用外部定义的那个
 
-    // 渲染详情模态框内容
     const renderModalContent = () => {
         if (!selectedItem) return null;
         const typeDef = getItemTypeDefinition(selectedItem.type_name);
@@ -106,25 +121,24 @@ const Dashboard: React.FC = () => {
                     ) : (
                         <div 
                             className="modal-no-image"
-                            style={{ background: getMorandiGradient(selectedItem.id) }}
+                            // ✨ 调用新的生成函数
+                            style={{ background: generateMorandiGradient(selectedItem.id) }}
                         >
-                            {/* ✨ 已移除中间的文字 */}
                         </div>
                     )}
                 </div>
-
+                {/* ... Modal 右侧内容保持不变 ... */}
                 <div className="modal-right-col">
                     <div className="modal-header">
-                        {/* ✨ 标题和状态并在 */}
                         <div className="header-title-group">
                             <h2>{selectedItem.name}</h2>
                             <StatusBadge status={selectedItem.status} />
                         </div>
                     </div>
-
+                    {/* ... 其余属性渲染保持不变 ... */}
                     <p className="modal-category">分类: {selectedItem.type_name}</p>
                     <div className="modal-desc">{selectedItem.description || "暂无描述"}</div>
-
+                    
                     <div className="modal-attributes">
                         {typeDef ? (
                             typeDef.attributes.map(attr => {
@@ -186,6 +200,7 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="page-container">
+            {/* ... Filter Bar 保持不变 ... */}
             <div className="filter-bar">
                 <select 
                     onChange={(e) => setFilters({ ...filters, type_id: e.target.value })}
@@ -233,13 +248,13 @@ const Dashboard: React.FC = () => {
                                 ) : (
                                     <div 
                                         className="no-image-gradient"
-                                        style={{ background: getMorandiGradient(item.id) }} 
+                                        // ✨ 列表项也自动应用新的生成函数
+                                        style={{ background: generateMorandiGradient(item.id) }} 
                                     />
                                 )}
                             </div>
 
                             <div className="card-overlay">
-                                {/* ✨ 左侧：名字 + 标签 */}
                                 <div className="overlay-left">
                                     <span className="overlay-text-name">{item.name}</span>
                                     <StatusBadge status={item.status} />
@@ -250,7 +265,8 @@ const Dashboard: React.FC = () => {
                     ))}
                 </div>
             )}
-
+            
+            {/* ... Modal Backdrop 保持不变 ... */}
             {selectedItem && (
                 <div className="modal-backdrop" onClick={() => setSelectedItem(null)}>
                     <div 
