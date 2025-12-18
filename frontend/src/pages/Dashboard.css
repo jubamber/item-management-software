@@ -11,14 +11,17 @@
 /* --- 卡片样式 --- */
 .dashboard-card {
   position: relative;
-  aspect-ratio: 3 / 4; 
-  /* ✨ 核心：卡片圆角，确保 overflow: hidden 生效，图片自然会被切成圆角 */
+  aspect-ratio: 3 / 4;
   border-radius: 12px;
-  overflow: hidden; 
+  overflow: hidden; /* 关键：由父容器统一负责裁剪圆角 */
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s, box-shadow 0.2s;
   background-color: #f0f0f0;
+  
+  /* ✨ 新增：强制去除内边距，防止被全局样式污染 */
+  padding: 0; 
+  border: none;
 }
 
 .dashboard-card:hover {
@@ -27,17 +30,24 @@
 }
 
 .card-bg-layer {
+  /* ✨ 核心修改：改为绝对定位，强制撑满 */
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  z-index: 0; /* 确保在底层 */
 }
 
 .card-bg-layer img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* 保持比例填满，多余部分裁掉 */
   display: block;
-  /* ✨ 双重保险：虽然父级切了，但加上这个防止某些浏览器渲染问题 */
-  border-radius: 12px; 
+  
+  /* ✨ 关键：移除子元素的圆角，完全依赖父容器的 overflow: hidden */
+  /* border-radius: 12px;  <-- 删除这一行 */
+  border-radius: 0;
 }
 
 .no-image-gradient {
