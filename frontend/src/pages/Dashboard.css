@@ -1,100 +1,13 @@
 /* src/pages/Dashboard.css */
 
-/* 搜索过滤区域容器 */
-.dashboard-filter-bar {
-  margin-bottom: 20px;
-  display: flex;
-  gap: 10px;
-  align-items: center; /* 确保 Flex 子元素垂直居中 */
-  flex-wrap: wrap;
-}
+/* 仅保留 Dashboard 特有的网格和卡片样式 */
 
-/* 
-   通用控件样式 (Select, Input, Button) 
-   对应参考代码中的 commonControlHeight 和通用样式
-*/
-.dashboard-control {
-  height: 38px;        /* 强制高度 */
-  line-height: 38px;   /* 【关键】行高与高度一致，实现文字垂直居中 */
-  box-sizing: border-box; 
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  border: 1px solid var(--border-color);
-  outline: none;
-  transition: var(--transition);
-  vertical-align: middle; /* 辅助对齐 */
-
-  /* 【关键修复 1】提升权重并强制重置 */
-  margin: 0 !important; /* 或者使用更高权重的选择器 */
-}
-
-/* 下拉框特定样式 */
-.dashboard-select {
-  padding: 0 12px;    /* 【关键】上下 padding 为 0，靠 line-height 居中 */
-  min-width: 120px;
-  background-color: #fff;
-  cursor: pointer;
-}
-
-.dashboard-select:focus {
-  border-color: var(--primary-color);
-}
-
-/* 搜索输入框 - 占据剩余空间 */
-/* 
-  搜索输入框 - 占据剩余空间 
-  使用 input.dashboard-input (权重 0-1-1) 
-  或者 .dashboard-filter-bar .dashboard-input (权重 0-2-0)
-  来压制全局的 input[type="text"] (权重 0-1-1)
-*/
-.dashboard-filter-bar .dashboard-input {
-  flex: 1;    /* 自动占满 */
-  padding: 0 12px;
-  
-  /* 【关键修复 3】必须显式重置，否则会被全局样式撑开 */
-  margin-bottom: 0;
-  width: auto;        /* 覆盖全局的 100%，让 flex: 1 生效 */
-}
-
-.dashboard-input:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-/* 搜索按钮 */
-.dashboard-btn-search {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0 20px;    /* 上下 0，左右 20px */
-  height: 38px;       /* 强制高度 */
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  
-  /* Flex 布局实现文字居中 (对应参考代码的 alignItems: 'center') */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* 推到最右侧 */
-  margin-left: auto; 
-}
-
-.dashboard-btn-search:hover {
-  background-color: var(--primary-hover);
-}
-
-/* --- 以下保持原有样式不变 --- */
-
-/* 网格布局 */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
-/* 物品卡片 */
 .dashboard-card {
   background-color: #fff;
   border: 1px solid var(--border-color);
@@ -118,7 +31,6 @@
   font-size: 18px;
 }
 
-/* 分类标签小字 */
 .dashboard-category-tag {
   font-size: 12px;
   color: var(--text-secondary);
@@ -132,7 +44,6 @@
   margin-bottom: 15px;
 }
 
-/* 属性列表 */
 .dashboard-list {
   font-size: 14px;
   color: var(--text-main);
@@ -142,31 +53,4 @@
   margin: 0;
 }
 
-/* 删除按钮 */
-.dashboard-btn-delete {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 0 20px;
-  height: 38px; 
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  margin-top: 15px;
-  
-  /* 居中逻辑 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  /* 靠右对齐 */
-  margin-left: auto;
-  transition: var(--transition);
-}
-
-.dashboard-btn-delete:hover {
-  border-color: var(--danger-color);
-  color: var(--danger-color);
-  background-color: #fef2f2;
-}
+/* 之前的一大堆 .dashboard-filter-bar, .dashboard-control 全部删除 */

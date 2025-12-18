@@ -313,3 +313,117 @@ form button[type="submit"]:hover {
     color: #6b7280;
     background-color: #eaeae7;
 }
+
+/* =========================================
+   6. 统一的过滤栏与表单控件 (Unified Controls)
+   替代 dashboard-control, admin-control 等
+   ========================================= */
+
+/* 1. 顶部工具栏/过滤栏容器 */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center; /* 垂直居中 */
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+/* 2. 通用输入框与选择框 (核心样式) */
+.control-input {
+  height: 38px;
+  line-height: 38px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+  
+  /* 核心修改：添加 !important 强制覆盖 input[type=...] 的默认边距 */
+  margin: 0 !important; 
+  
+  vertical-align: middle;
+  min-width: 120px;
+  
+  /* 建议添加：覆盖通用样式中的 width: 100% */
+  /* 在过滤栏中通常不需要 100% 宽度，而是根据内容或 min-width 自适应 */
+  width: auto; 
+}
+
+/* 获得焦点时 */
+.control-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 特殊修饰：占据剩余空间 (用于搜索框) */
+.control-input.flex-grow {
+  flex: 1;
+  width: auto;
+}
+
+/* 3. 统一操作按钮 (高度 38px) */
+.btn-action {
+  height: 38px;          /* 与输入框等高 */
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  
+  /* Flex 布局保证内部文字/图标居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;   /* 防止文字换行 */
+}
+
+/* 主按钮 (蓝色) */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 次要/重置按钮 (白色带边框) */
+.btn-secondary {
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+.btn-secondary:hover {
+  background-color: #f9fafb;
+  border-color: #999;
+}
+
+/* 危险按钮 (红色边框) - 用于列表内的删除操作 */
+.btn-danger-outline {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  height: 38px;
+  padding: 0 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  font-size: 14px;
+}
+.btn-danger-outline:hover {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  background-color: #fef2f2;
+}
+
+/* 辅助类：自动推到最右侧 */
+.push-right {
+  margin-left: auto;
+}

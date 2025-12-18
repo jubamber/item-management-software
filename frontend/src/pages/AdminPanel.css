@@ -1,6 +1,5 @@
 /* src/pages/AdminPanel.css */
 
-/* --- 布局容器 --- */
 .admin-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -17,52 +16,7 @@
   padding-top: 20px;
 }
 
-/* --- 搜索与工具栏 (参考 Dashboard 样式) --- */
-.toolbar {
-  margin-bottom: 20px;
-  display: flex;
-  gap: 10px;
-  align-items: center; /* 垂直居中 */
-  flex-wrap: wrap;
-}
-
-/* 通用控件样式 (高度 38px, 垂直居中) */
-.admin-control {
-  height: 38px;
-  line-height: 38px; /* 文字垂直居中 */
-  box-sizing: border-box;
-  border-radius: 4px; /* 对应 var(--radius-sm) */
-  font-size: 14px;
-  border: 1px solid var(--border-color, #ccc);
-  outline: none;
-  transition: all 0.2s;
-  padding: 0 12px;
-  margin: 0; /* 重置可能存在的 margin */
-}
-
-/* 输入框特定样式 */
-.search-input {
-  /* 继承通用样式 */
-  height: 38px;
-  line-height: 38px; 
-  box-sizing: border-box;
-  border-radius: 4px;
-  border: 1px solid var(--border-color, #ccc);
-  padding: 0 12px;
-  outline: none;
-  
-  /* 宽度设置 */
-  width: 250px; 
-  flex: 1; /* 在移动端或窄屏可自动撑开 */
-  max-width: 400px;
-}
-
-.search-input:focus {
-  border-color: var(--primary-color, #2563eb);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-/* --- 表格样式 --- */
+/* --- 表格样式 (保留) --- */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -88,13 +42,12 @@
   border-bottom: 1px solid #f3f4f6;
 }
 
-/* 没数据时的提示文本 */
 .empty-text {
   color: #888;
   font-style: italic;
 }
 
-/* --- 角色标签 --- */
+/* --- 角色标签 (保留) --- */
 .role-badge {
   padding: 2px 8px;
   border-radius: 4px;
@@ -103,70 +56,22 @@
   display: inline-block;
 }
 
-.role-badge.admin {
-  background-color: #ffd43b;
-  color: #333;
-}
+.role-badge.admin { background-color: #ffd43b; color: #333; }
+.role-badge.user { background-color: #e7f5ff; color: #1c7ed6; }
 
-.role-badge.user {
-  background-color: #e7f5ff;
-  color: #1c7ed6;
-}
-
-/* --- 按钮样式 --- */
-
-/* 搜索/添加 主按钮 (仿照 dashboard-btn-search) */
-.btn-primary-action {
-  background-color: var(--primary-color, #2563eb);
-  color: white;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0 20px;
-  
-  /* Flex 居中 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* 推到最右侧 */
-  margin-left: auto;
-}
-
-.btn-primary-action:hover {
-  opacity: 0.9;
-}
-
-/* 重置/次要按钮 (仿照 dashboard-control 的基础样式 + 白色背景) */
-.btn-secondary-action {
-  background-color: #fff;
-  color: #333;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0 20px;
-  
-  /* Flex 居中 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* 推到最右侧 */
-  margin-left: auto;
-}
-
-.btn-secondary-action:hover {
-  background-color: #f9fafb;
-  border-color: #999;
-}
-
-/* 保留表格内的按钮样式 (删除、提升、拒绝等) */
+/* --- 表格内的小按钮 (保留) --- */
 .btn-sm {
   padding: 6px 12px;
-  font-size: 14px;
+  font-size: 12px;
   border-radius: 4px;
   cursor: pointer;
-  /* 表格里的按钮通常不需要强制 38px 高度，保持原样即可，或者也可以统一 */
+  border: none;
+  color: white;
 }
+
+.btn-delete { background-color: var(--danger-color, #ef4444); }
+.btn-promote { background-color: #2563eb; }
+.btn-demote { background-color: #84cc16; }
 
 /* 文本操作按钮 (通过/拒绝) */
 .btn-text {
@@ -175,47 +80,19 @@
   cursor: pointer;
   font-weight: 600;
   padding: 5px 10px;
+  font-size: 14px;
 }
 
-.btn-text.approve {
-  color: #16a34a; /* Green */
-}
-.btn-text.approve:hover {
-  background-color: #dcfce7;
-  border-radius: 4px;
-}
+.btn-text.approve { color: #16a34a; }
+.btn-text.approve:hover { background-color: #dcfce7; border-radius: 4px; }
 
-.btn-text.reject {
-  color: var(--danger-color, #ef4444);
-}
-.btn-text.reject:hover {
-  background-color: #fee2e2;
-  border-radius: 4px;
-}
+.btn-text.reject { color: var(--danger-color, #ef4444); }
+.btn-text.reject:hover { background-color: #fee2e2; border-radius: 4px; }
 
-/* 实心操作按钮 */
-.btn-delete {
-  background-color: var(--danger-color, #ef4444);
-  color: white;
-  border: none;
-  margin-right: 5px;
-}
-
-.btn-promote {
-  background-color: #2563eb; /* Blue */
-  color: white;
-  border: none;
-}
-
-.btn-demote {
-  background-color: #84cc16; /* Lime Green */
-  color: white;
-  border: none;
-}
-
-/* 添加类型的提示文字 */
 .hint-text {
   font-size: 12px;
-  color: var(--text-secondary, gray);
+  color: gray;
   margin-top: 5px;
 }
+
+/* 删除了之前的 .toolbar, .admin-control, .search-input, .btn-primary-action 等 */
