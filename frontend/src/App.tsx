@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
 
     return (
         <nav className="navbar">
-            <Link to="/" className="navbar-logo">物品复活系统</Link>
+            <Link to="/" className="navbar-logo">物品交流系统</Link>
             <Link to="/" className="navbar-link">浏览物品</Link>
 
             {user ? (

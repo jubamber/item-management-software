@@ -1,116 +1,253 @@
 /* src/pages/Dashboard.css */
 
-/* 仅保留 Dashboard 特有的网格和卡片样式 */
-
+/* --- 网格布局 --- */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
+  padding-bottom: 40px;
 }
 
+/* --- 卡片样式 --- */
 .dashboard-card {
-  background-color: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: var(--transition);
-  
-  /* 新增/修改：为了配合图片显示 */
+  position: relative;
+  aspect-ratio: 3 / 4; 
+  /* ✨ 核心：卡片圆角，确保 overflow: hidden 生效，图片自然会被切成圆角 */
+  border-radius: 12px;
   overflow: hidden; 
-  padding: 0; /* 移除原有 padding，由 card-content 接管 */
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: #f0f0f0;
 }
-
-/* --- 新增：图片区域样式 --- */
-.card-image-wrapper {
-  width: 100%;
-  height: 200px; /* 固定高度 */
-  background-color: #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid #f0f0f0;
-  flex-shrink: 0; /* 防止被压缩 */
-}
-
-.item-card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 保持比例填满 */
-}
-
-.no-image-placeholder {
-  color: #999;
-  font-size: 0.9rem;
-}
-
-/* --- 新增：内容区域样式 (接管原有的 padding) --- */
-.card-content {
-  padding: 15px; 
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ----------------------------- */
 
 .dashboard-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-card h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 18px;
+.card-bg-layer {
+  width: 100%;
+  height: 100%;
 }
 
-.dashboard-category-tag {
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: normal;
-  margin-left: 8px;
+.card-bg-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* ✨ 双重保险：虽然父级切了，但加上这个防止某些浏览器渲染问题 */
+  border-radius: 12px; 
 }
 
-.dashboard-desc {
-  color: #555;
-  font-size: 14px;
-  margin-bottom: 15px;
+.no-image-gradient {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px; /* 保持一致的圆角 */
 }
 
-.dashboard-list {
-  font-size: 14px;
-  color: var(--text-main);
-  list-style: none;
-  padding-left: 0;
-  line-height: 1.8;
-  margin: 0;
+/* --- 底部白色渐变蒙层 --- */
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35%; /* 稍微加高一点以容纳两行可能的内容，或者让布局更松散 */
+  background: linear-gradient(to top, rgba(255, 255, 255, 1) 15%, rgba(255, 255, 255, 0) 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 12px 15px;
+  box-sizing: border-box;
 }
 
-/* --- 状态标签 (Status Badge) --- */
+/* ✨ 修改布局以支持标签跟随 */
+.overlay-left {
+  display: flex;
+  flex-direction: column; /* 名字在上，标签在下，或者都在一行？ */
+  /* 如果希望名字和标签在一行，用 flex-direction: row; align-items: center; */
+  /* 这里为了卡片美观，如果名字长，建议名字一行，标签一行；或者简单的行内跟随 */
+  flex-direction: row; 
+  align-items: center;
+  gap: 6px;
+  max-width: 70%;
+}
 
-/* 基础样式：胶囊形状、字体大小等 */
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 20px; /* 胶囊状圆角 */
-  font-size: 12px;
+.overlay-text-name {
   font-weight: 600;
+  font-size: 15px;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%; /* 让 flex item 自动调整 */
+}
+
+.overlay-text-owner {
+  font-size: 12px;
+  color: #6b7280;
+  max-width: 25%;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px; /* 稍微对齐视觉中心 */
+}
+
+/* =========================================
+   ✨ 新增：状态标签样式 (Tag Style)
+   ========================================= */
+.status-tag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 6px; /* 圆角矩形 */
+  border: 1px solid;
+  white-space: nowrap;
+  line-height: 1.4;
   display: inline-block;
-  white-space: nowrap; /* 防止文字换行 */
+  flex-shrink: 0; /* 防止被挤压 */
 }
 
-/* 状态：待领取 (Available) - 绿色系 */
-.status-badge.available {
-  background-color: #dcfce7; /* 淡绿色背景 */
-  color: #166534;           /* 深绿色文字 */
-  border: 1px solid #bbf7d0; /* 可选：加个淡淡的边框 */
+/* 待领取：绿色/清新色 */
+.tag-available {
+  color: #059669; /* 深绿文字 */
+  background-color: #ECFDF5; /* 浅绿背景 */
+  border-color: #A7F3D0; /* 边框 */
 }
 
-/* 状态：已领走 (Taken) - 灰色系 */
-.status-badge.taken {
-  background-color: #f3f4f6; /* 淡灰色背景 */
-  color: #4b5563;           /* 深灰色文字 */
-  border: 1px solid #e5e7eb; /* 可选：加个淡淡的边框 */
+/* 已领走：灰色/低调色 */
+.tag-taken {
+  color: #6B7280; /* 灰色文字 */
+  background-color: #F3F4F6; /* 浅灰背景 */
+  border-color: #E5E7EB;
+}
+
+
+/* =========================================
+   Modal (详情弹窗) 样式
+   ========================================= */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-container {
+  background: white;
+  width: 100%;
+  max-width: 900px;
+  height: 80vh;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: scaleIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ✨ 修复：关闭按钮 Hover 变圆 */
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  font-size: 28px;
+  /* 强制宽高一致 */
+  width: 40px; 
+  height: 40px;
+  /* 强制圆形 */
+  border-radius: 50%; 
+  /* 居中内容 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: #555;
+  transition: all 0.2s;
+  flex-shrink: 0; /* 防止被父容器挤压 */
+  line-height: 1; /* 重置行高影响 */
+  padding: 0; /* 移除内边距影响 */
+}
+
+.modal-close-btn:hover {
+  background: #f3f4f6;
+  color: #000;
+  border-radius: 50%; /* 再次确保 hover 状态也是圆的 */
+  transform: rotate(90deg); /* 增加一点微交互，可选 */
+}
+
+/* 布局调整 */
+.modal-body-layout { display: flex; height: 100%; }
+.modal-left-col { flex: 3; background-color: #f9fafb; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.modal-image { width: 100%; height: 100%; object-fit: contain; background-color: #000; }
+
+.modal-no-image {
+  width: 100%;
+  height: 100%;
+  /* 移除了 flex center，因为不再显示文字 */
+}
+
+.modal-right-col { flex: 2; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; }
+
+.modal-header {
+  margin-bottom: 10px;
+}
+
+/* ✨ 弹窗头部：标题和标签横向排列 */
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* 标题和标签的间距 */
+    flex-wrap: wrap;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+/* 针对 Modal 里的标签微调大小 */
+.modal-header .status-tag {
+    font-size: 13px;
+    padding: 3px 8px;
+}
+
+.modal-category { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+.modal-desc { font-size: 15px; line-height: 1.6; color: #374151; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+
+.modal-attributes { flex-grow: 1; }
+.attr-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #f0f0f0; font-size: 14px; }
+.attr-row:last-child { border-bottom: none; }
+.attr-label { color: var(--text-secondary); font-weight: 500; }
+.attr-value { color: var(--text-main); font-weight: 600; text-align: right; max-width: 60%; }
+
+.modal-actions { margin-top: 30px; display: flex; gap: 15px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+@media (max-width: 768px) {
+  .modal-container { height: 100vh; border-radius: 0; max-width: 100%; }
+  .modal-body-layout { flex-direction: column; }
+  .modal-left-col { flex: none; height: 40vh; }
+  .modal-right-col { flex: 1; }
+  .modal-close-btn { top: 10px; right: 10px; background: rgba(0,0,0,0.3); color: white; }
+  
+  /* 手机端卡片里的名字和标签可能需要换行 */
+  .overlay-left { max-width: 65%; flex-wrap: wrap; gap: 4px; }
 }

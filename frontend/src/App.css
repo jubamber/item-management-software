@@ -146,6 +146,11 @@ select {
   border-radius: var(--radius-sm);
   background-color: #fff;
   font-size: 15px;
+  /* 关键修复：强制继承 body 定义的字体系列 */
+  font-family: inherit; 
+  
+  /* 建议添加：确保文字颜色也一致（防止某些浏览器默认为纯黑而不是你的深灰） */
+  color: var(--text-main); 
   transition: var(--transition);
   outline: none;
 }
