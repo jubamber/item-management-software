@@ -1,3 +1,4 @@
+/* src/pages/AddItem.css */
 /* =========================================
    AddItem 页面专用样式
    ========================================= */
@@ -9,6 +10,7 @@
 */
 .add-item-container {
   width: 100%;
+  min-height: 50vh;
 
   padding: 30px 40px;
   background-color: var(--bg-card);
@@ -79,11 +81,15 @@
 }
 
 /* 
-   5. 提交按钮微调
-   覆盖 inline style 的 margin-top，并增加尺寸感
+   修改：提交按钮 
+   使用 margin: auto 实现水平居中
 */
 .add-item-container button[type="submit"] {
-  margin-top: 30px !important; /* 覆盖内联样式 */
+  margin: 40px auto 0 auto !important; /* 上边距40px，左右自动(居中) */
+  display: block;
+  min-width: 200px; /* 给按钮一个最小宽度，看起来更协调 */
+  
+  /* 之前的样式保留 */
   height: 48px;
   font-size: 16px;
   font-weight: 600;
@@ -97,16 +103,52 @@
 }
 
 /* 
-   6. 响应式适配
-   在移动端去掉外边距和阴影，让表单填满屏幕
+   修改：响应式适配 
+   手机端变回竖向排列
 */
 @media (max-width: 640px) {
-  .add-item-container {
-    margin: 0;
-    max-width: 100%;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-    padding: 20px;
+  .form-content {
+    flex-direction: column; /* 手机上改为上下排列 */
+    gap: 20px;
   }
+  
+  .form-left, .form-right {
+    width: 100%; /* 手机上占满宽度 */
+  }
+
+  .add-item-container button[type="submit"] {
+    width: 100%; /* 手机上按钮占满全宽 */
+  }
+}
+
+/* 
+   修改：add-item-form 
+   改为竖向排列，这样 form-content 在上面，button 在下面
+*/
+.add-item-form {
+  display: flex;
+  flex-direction: column; 
+  width: 100%;
+}
+
+/* 
+   新增：form-content
+   用来包裹左右两栏，实现横向布局
+*/
+.form-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 40px; /* 左右栏之间的间距 */
+  width: 100%;
+}
+
+/* 
+   修改：左右栏宽度 
+   flex: 1 确保它们平分剩余空间 (即各占 50% 减去 gap)
+*/
+.form-left, .form-right {
+  flex: 1;
+  width: 0; /* 关键：防止内容过长撑破 flex 布局 */
+  padding-left: 0; /* 移除之前可能存在的 padding，改用 gap 控制间距 */
 }

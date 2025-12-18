@@ -50,82 +50,92 @@ const AddItem: React.FC = () => {
     };
 
     return (
-        <div className="page-container-narrow">
+        <div className="page-container">
         <div className="add-item-container">
             <h2>发布新物品</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>物品类型 <span style={{color: 'red'}}>*</span>:</label>
-                    <select required onChange={handleTypeChange} defaultValue="">
-                        <option value="">-- 请选择 --</option>
-                        {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                    </select>
-                </div>
+            <form onSubmit={handleSubmit} className="add-item-form">
+                
+                {/* --- 修改开始：增加一个包裹层 form-content --- */}
+                <div className="form-content">
+                    
+                    {/* 左侧栏 */}
+                    <div className="form-left">
+                        <div className="form-group">
+                            <label>物品类型 <span style={{color: 'red'}}>*</span>:</label>
+                            <select required onChange={handleTypeChange} defaultValue="">
+                                <option value="">-- 请选择 --</option>
+                                {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                        </div>
 
-                {selectedType && (
-                    <>
-                        <div className="form-group">
-                            <label>物品名称 <span style={{color: 'red'}}>*</span>:</label>
-                            <input 
-                                required 
-                                type="text" 
-                                value={formData.name}
-                                onChange={e => setFormData({...formData, name: e.target.value})} 
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>描述:</label>
-                            <textarea 
-                                value={formData.description}
-                                onChange={e => setFormData({...formData, description: e.target.value})} 
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>地址:</label>
-                            <input 
-                                type="text" 
-                                value={formData.address}
-                                onChange={e => setFormData({...formData, address: e.target.value})} 
-                            />
-                        </div>
-                        
+                        {selectedType && (
+                        <>
+                            <div className="form-group">
+                                <label>物品名称 <span style={{color: 'red'}}>*</span>:</label>
+                                <input 
+                                    required 
+                                    type="text" 
+                                    value={formData.name}
+                                    onChange={e => setFormData({...formData, name: e.target.value})} 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>描述:</label>
+                                <textarea 
+                                    value={formData.description}
+                                    onChange={e => setFormData({...formData, description: e.target.value})} 
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>地址:</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.address}
+                                    onChange={e => setFormData({...formData, address: e.target.value})} 
+                                />
+                            </div>
+                        </>
+                        )}
+                    </div>
+
+                    {/* 右侧栏 */}
+                    {selectedType && (
+                        <div className="form-right">
                         <h4>{selectedType.name} 特有属性</h4>
                         {selectedType.attributes.map(attr => (
                             <div key={attr.key} className="form-group">
-                                <label>
-                                    {attr.label}
-                                    {/* 1. 必填项显示红色星号 */}
-                                    {attr.required && <span style={{color: 'red', marginLeft: '4px'}}>*</span>}
-                                    :
-                                </label>
-                                
-                                {/* 2. 判断是否为下拉类型 (select) */}
-                                {attr.type === 'select' && attr.options ? (
-                                    <select
-                                        required={attr.required}
-                                        value={attrData[attr.key] || ''}
-                                        onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
-                                        style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }} // 简单样式保证美观
-                                    >
-                                        <option value="">-- 请选择 --</option>
-                                        {attr.options.map((opt, idx) => (
-                                            <option key={idx} value={opt}>{opt}</option>
-                                        ))}
-                                    </select>
-                                ) : (
-                                    /* 3. 普通输入框 (text/number/date) */
-                                    <input 
-                                        type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
-                                        required={attr.required} // 绑定 HTML 必填校验
-                                        value={attrData[attr.key] || ''}
-                                        onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
-                                    />
-                                )}
+                            <label>
+                                {attr.label}{attr.required && <span style={{color:'red'}}> *</span>}:
+                            </label>
+                            {attr.type === 'select' && attr.options ? (
+                                <select
+                                required={attr.required}
+                                value={attrData[attr.key] || ''}
+                                onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
+                                >
+                                <option value="">-- 请选择 --</option>
+                                {attr.options.map((opt, idx) => (
+                                    <option key={idx} value={opt}>{opt}</option>
+                                ))}
+                                </select>
+                            ) : (
+                                <input
+                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                required={attr.required}
+                                value={attrData[attr.key] || ''}
+                                onChange={e => setAttrData(prev => ({...prev, [attr.key]: e.target.value}))}
+                                />
+                            )}
                             </div>
                         ))}
+                        </div>
+                    )}
+                </div> 
+                {/* --- 修改结束：form-content 包裹层结束 --- */}
 
-                        <button type="submit" style={{ marginTop: '20px' }}>提交物品</button>
-                    </>
+                {/* 按钮在 form-content 之外，form 之内 */}
+                {selectedType && (
+                    <button type="submit">提交物品</button>
                 )}
             </form>
         </div>
