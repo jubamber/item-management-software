@@ -27,6 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
+        const refreshToken = sessionStorage.getItem('refresh_token'); // 获取
         const role = sessionStorage.getItem('role') as User['role'];
         const username = sessionStorage.getItem('username');
         const idStr = sessionStorage.getItem('id');
@@ -34,9 +35,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const id = Number(idStr);
         
         if (token && role && username && Number.isFinite(id)) {
-            setUser({ token, role, username, id });
+            // 这里加入 refreshToken
+            setUser({ token, refresh_token: refreshToken || undefined, role, username, id });
         } else {
-            // 如果缺少信息，确保清理干净
             sessionStorage.clear();
             setUser(null);
         }
@@ -44,12 +45,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = (data: LoginResponse) => {
         sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('refresh_token', data.refresh_token); // 保存
         sessionStorage.setItem('role', data.role);
         sessionStorage.setItem('username', data.username);
         sessionStorage.setItem('id', String(data.id));
 
         setUser({
             token: data.token,
+            refresh_token: data.refresh_token,
             role: data.role,
             username: data.username,
             id: data.id
@@ -59,7 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = () => {
         sessionStorage.clear();
         setUser(null);
-        // 推荐登出后重定向到首页或登录页
         window.location.href = '/'; 
     };
 

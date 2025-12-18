@@ -8,6 +8,7 @@ export interface User {
     role: 'user' | 'admin';
     status: 'pending' | 'approved' | 'rejected';
     token?: string;
+    refresh_token?: string; 
 }
 
 export interface AttributeDefinition {
@@ -41,6 +42,7 @@ export interface Item {
 export interface LoginResponse {
     token: string;
     role: 'user' | 'admin';
+    refresh_token: string;
     username: string;
     id: number;
 }

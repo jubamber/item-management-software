@@ -3,7 +3,7 @@
 import json
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, request, jsonify 
 from flask_sqlalchemy import SQLAlchemy # ORM
 from sqlalchemy.exc import IntegrityError
@@ -11,6 +11,7 @@ from flask_cors import CORS # 处理跨域请求
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
+    create_refresh_token,
     jwt_required,
     get_jwt_identity,
     get_jwt
@@ -24,6 +25,10 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this-in-production' # 实际使用时需要加密，这里就不修改了
+
+# 配置 Token 过期时间
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=5)   # 短效：5分钟
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)     # 长效：7天
 
 # 图片存储配置
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
@@ -151,19 +156,41 @@ def login():
     if user.status != 'approved':
         return jsonify({"msg": "Account is not approved yet"}), 403
     
-    # token = create_access_token(identity={'id': user.id, 'role': user.role, 'username': user.username})
-    # identity 必须是字符串 (这里存 user.id)
-    # 其他信息放入 additional_claims
-    token = create_access_token(
+    # 生成双 Token
+    access_token = create_access_token(
         identity=str(user.id), 
         additional_claims={"role": user.role, "username": user.username}
     )
+    refresh_token = create_refresh_token(identity=str(user.id)) # 刷新令牌只需要身份ID
+    
     return jsonify({
-        "token": token,
+        "token": access_token,        # 前端通常叫 token 或 access_token
+        "refresh_token": refresh_token, # 新增
         "role": user.role,
         "username": user.username,
         "id": user.id      
     }), 200
+
+# 新增刷新接口 (/refresh)
+# 注意：这个接口需要 @jwt_required(refresh=True)
+@app.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)  # 仅允许携带 refresh_token 访问
+def refresh():
+    current_user_id = get_jwt_identity() # 获取 identity (这里是 user_id 字符串)
+    
+    # 重新查询用户以获取最新信息（如角色变更）
+    user = User.query.get(int(current_user_id))
+    
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # 生成新的 Access Token
+    new_access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims={"role": user.role, "username": user.username}
+    )
+    
+    return jsonify({"token": new_access_token}), 200
 
 # 2. 物品类型模块 (公共读取，管理员管理)
 @app.route('/types', methods=['GET'])
