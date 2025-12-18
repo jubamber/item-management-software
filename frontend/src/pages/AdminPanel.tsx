@@ -130,17 +130,26 @@ const AdminPanel: React.FC = () => {
         <div className="admin-container">
             <h2>管理员后台</h2>
             
-            {/* 1. 待审核区域 (表格样式保持，不受影响) */}
+            {/* 1. 待审核区域 */}
             <div className="admin-section">
                 <h3>待审核用户</h3>
-                {pendingUsers.length === 0 ? <p className="empty-text">无待审核用户</p> : (
+                {pendingUsers.length === 0 ? <p className="empty-text">当前无待审核用户</p> : (
                     <table className="admin-table">
-                         {/* ... table content ... */}
-                         <tbody>
+                        {/* 必须添加 thead 以适配圆角和样式 */}
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {pendingUsers.map(u => (
                                 <tr key={u.id}>
-                                    {/* ... cols ... */}
-                                    <td>{u.id}</td><td>{u.username}</td><td>{u.email}</td>
+                                    <td>#{u.id}</td>
+                                    <td>{u.username}</td>
+                                    <td>{u.email}</td>
                                     <td>
                                         <button onClick={() => handleApproval(u.id, 'approve')} className="btn-text approve">通过</button>
                                         <button onClick={() => handleApproval(u.id, 'reject')} className="btn-text reject">拒绝</button>
@@ -152,55 +161,62 @@ const AdminPanel: React.FC = () => {
                 )}
             </div>
 
-            {/* 2. 用户管理区域 (使用统一 class) */}
+            {/* 2. 用户管理区域 */}
             <div className="partition">
                 <h3>用户管理 (已通过)</h3>
                 
-                {/* 统一的 Filter Bar */}
+                {/* 过滤栏 */}
                 <div className="filter-bar">
                     <input 
                         type="text" 
                         placeholder="搜索用户名、邮箱或电话..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        // 使用统一 input, 自动撑开
                         className="control-input flex-grow" 
                     />
-                    <button 
-                        onClick={handleSearch} 
-                        // 使用统一蓝色按钮
-                        className="btn-action btn-primary"
-                    >
-                        搜索
-                    </button>
-                    <button 
-                        onClick={() => { setSearchTerm(''); fetchApprovedUsers(''); }} 
-                        // 使用统一白色按钮
-                        className="btn-action btn-secondary"
-                    >
-                        重置
-                    </button>
+                    <button onClick={handleSearch} className="btn-action btn-primary">搜索</button>
+                    <button onClick={() => { setSearchTerm(''); fetchApprovedUsers(''); }} className="btn-action btn-secondary">重置</button>
                 </div>
 
                 <table className="admin-table">
-                    {/* ... 表格内容保持不变 ... */}
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>角色</th>
+                            <th>邮箱</th>
+                            <th>电话</th>
+                            <th>地址</th>
+                            <th>删除用户</th>
+                            <th>权限管理</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {approvedUsers.map(u => (
                             <tr key={u.id}>
-                                {/* ... cols ... */}
-                                <td>{u.id}</td><td><strong>{u.username}</strong></td>
-                                <td><span className={`role-badge ${u.role === 'admin' ? 'admin' : 'user'}`}>{u.role}</span></td>
-                                <td>{u.email}</td><td>{u.phone || '-'}</td><td>{u.address || '-'}</td>
+                                <td>#{u.id}</td>
+                                <td><strong>{u.username}</strong></td>
+                                <td>
+                                    <span className={`role-badge ${u.role === 'admin' ? 'admin' : 'user'}`}>
+                                        {u.role === 'admin' ? '管理员' : '用户'}
+                                    </span>
+                                </td>
+                                <td>{u.email}</td>
+                                <td>{u.phone || '-'}</td>
+                                <td>{u.address || '-'}</td>
                                 <td>
                                     {u.username !== 'admin' && u.username !== user?.username ? (
                                         <button onClick={() => handleDeleteUser(u.id, u.username)} className="btn-sm btn-delete">删除</button>
-                                    ) : <div>-</div>}
+                                    ) : <span className="text-gray-300">-</span>}
                                 </td>
                                 <td>
-                                    {/* 权限按钮保持原样或也可以优化，暂时不动 */}
-                                    {u.role === 'user' && <button onClick={() => handlePromote(u.id, u.username)} className="btn-sm btn-promote">提升为管理员</button>}
-                                    {u.role === 'admin' && u.username !== 'admin' && u.username !== user?.username && <button onClick={() => handleDemote(u.id, u.username)} className="btn-sm btn-demote">降为普通用户</button>}
-                                    {(u.username === 'admin' || u.username === user?.username) && <div>-</div>}
+                                    {u.role === 'user' && (
+                                        <button onClick={() => handlePromote(u.id, u.username)} className="btn-sm btn-promote">提权</button>
+                                    )}
+                                    {u.role === 'admin' && u.username !== 'admin' && u.username !== user?.username && (
+                                        <button onClick={() => handleDemote(u.id, u.username)} className="btn-sm btn-demote">降权</button>
+                                    )}
+                                    {(u.username === 'admin' || u.username === user?.username) && <span className="text-gray-300">-</span>}
                                 </td>
                             </tr>
                         ))}
@@ -208,7 +224,7 @@ const AdminPanel: React.FC = () => {
                 </table>
             </div>
 
-            {/* 3. 添加物品类型 (使用统一 class) */}
+            {/* 3. 添加物品类型 */}
             <div className="partition">
                 <h3>添加物品类型</h3>
                 <div className="filter-bar">
@@ -216,16 +232,9 @@ const AdminPanel: React.FC = () => {
                         placeholder="类型名称 (如: 电子产品)" 
                         value={newType.name}
                         onChange={e => setNewType({ ...newType, name: e.target.value })}
-                        // 使用统一 input
                         className="control-input flex-grow"
                     />
-                    <button 
-                        onClick={handleAddType} 
-                        // 使用统一蓝色按钮，推到最右侧
-                        className="btn-action btn-primary push-right" 
-                    >
-                        添加类型
-                    </button>
+                    <button onClick={handleAddType} className="btn-action btn-primary push-right">添加类型</button>
                 </div>
                 <p className="hint-text">*注意：当前为演示模式，新类型将自动包含"品牌"和"新旧程度"两个属性。</p>
             </div>
