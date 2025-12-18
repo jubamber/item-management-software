@@ -24,7 +24,7 @@ const generateRandomKey = () => {
 };
 
 const AdminPanel: React.FC = () => {
-    const { user } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext); 
 
     const [pendingUsers, setPendingUsers] = useState<User[]>([]);
     const [approvedUsers, setApprovedUsers] = useState<User[]>([]);
@@ -279,6 +279,32 @@ const AdminPanel: React.FC = () => {
         }
     };
 
+    const handleResetDatabase = async () => {
+        // 第一重确认
+        const confirm1 = window.confirm("⚠️ 严重警告 ⚠️\n\n您确定要重置整个数据库吗？\n\n此操作将：\n1. 删除所有用户（除 admin 外）\n2. 删除所有发布的物品\n3. 删除所有自定义类型\n4. 操作不可逆！");
+        
+        if (!confirm1) return;
+
+        // 第二重确认 (防止误触)
+        const confirm2 = window.prompt("为了确认您的操作，请在下方输入 'RESET' (大写)：");
+        if (confirm2 !== 'RESET') {
+            alert("操作已取消：输入不匹配");
+            return;
+        }
+
+        try {
+            setPageLoading(true);
+            await api.post('/admin/reset-db');
+            alert("数据库重置成功！系统将退出登录，请使用初始密码重新登录。");
+            // 3. 调用登出，清理 Token 并跳转回登录页
+            logout(); 
+        } catch (e: any) {
+            console.error(e);
+            alert("重置失败: " + (e.response?.data?.msg || e.message));
+            setPageLoading(false);
+        }
+    };
+
 
     if (pageLoading) return <Loading />;
 
@@ -481,6 +507,27 @@ const AdminPanel: React.FC = () => {
                     </div>
                 )}
             </div>
+            {/* ================= 5. 危险区域 (仅 admin 可见) ================= */}
+            {user?.username === 'admin' && (
+                <div className="partition danger-zone">
+                    <h3 className="danger-title">⚠️ 危险区域 (DANGER ZONE)</h3>
+                    
+                    <div className="danger-content">
+                        <p className="danger-text">
+                            <strong>重置数据库：</strong> 
+                            此操作将清除所有数据（用户、物品、图片记录），并将系统恢复到刚安装时的初始状态。
+                            只有超级管理员 <code>admin</code> 拥有此权限。
+                        </p>
+                        
+                        <button 
+                            onClick={handleResetDatabase} 
+                            className="btn-danger-reset"
+                        >
+                            重置数据库 (Reset Database)
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -593,6 +593,31 @@ def upload_image():
         # 返回相对路径供前端存储和访问
         # 注意：前端访问时路径为 http://host:port/static/images/filename
         return jsonify({"path": f"/static/images/{filename}"}), 201
+    
+# ================= 5. 系统维护模块 (System Maintenance) =================
+
+@app.route('/admin/reset-db', methods=['POST'])
+@jwt_required()
+def reset_database():
+    identity = get_jwt()
+    # 双重校验：必须是管理员角色，且用户名必须是 'admin'
+    # 注意：identity['username'] 是我们在 login 时放入 additional_claims 的
+    if identity['role'] != 'admin' or identity.get('username') != 'admin':
+        return jsonify({"msg": "Critical Error: Unauthorized access. Only the superuser 'admin' can perform this action."}), 403
+
+    try:
+        # 1. 删除所有表
+        db.drop_all()
+        # 2. 重新创建所有表
+        db.create_all()
+        # 3. 重新运行初始化函数（创建默认admin和物品类型）
+        create_admin()
+        
+        return jsonify({"msg": "Database has been reset to initial state."}), 200
+    except Exception as e:
+        # 发生错误尝试回滚，虽然 drop_all 很难回滚，但是个好习惯
+        db.session.rollback()
+        return jsonify({"msg": f"Reset failed: {str(e)}"}), 500
 
 
 # 启动

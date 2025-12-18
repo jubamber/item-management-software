@@ -403,3 +403,74 @@
     margin-top: 5px;
   }
 }
+
+/* --- 危险区域样式 --- */
+.danger-zone {
+    margin-top: 50px;
+    border: 2px solid #fee2e2; /* 浅红色边框 */
+    background-color: #fef2f2; /* 极浅红色背景 */
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.danger-title {
+    color: #b91c1c; /* 深红色标题 */
+    margin-top: 0;
+    border-bottom: 1px solid #fecaca;
+    padding-bottom: 10px;
+}
+
+.danger-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.danger-text {
+    color: #7f1d1d;
+    font-size: 14px;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.danger-text code {
+    background-color: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.btn-danger-reset {
+    background-color: #dc2626; /* 鲜艳的红色 */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-danger-reset:hover {
+    background-color: #b91c1c;
+    box-shadow: 0 4px 6px rgba(185, 28, 28, 0.4);
+}
+
+.btn-danger-reset:active {
+    transform: translateY(1px);
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+    .danger-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .btn-danger-reset {
+        width: 100%;
+    }
+}

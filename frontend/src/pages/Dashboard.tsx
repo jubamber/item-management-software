@@ -283,7 +283,7 @@ const Dashboard: React.FC = () => {
                 <div className="search-group flex-grow">
                     <input 
                         type="text"
-                        placeholder="🔍 搜索物品名称、描述..." 
+                        placeholder="搜索物品名称、描述..." 
                         onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()} // 回车搜索
                         className="control-input search-input"
